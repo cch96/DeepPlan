@@ -11,6 +11,22 @@ skill is active. If implementation is also requested, settle the DeepPlan output
 first, then leave planning and use the host's normal editing and verification
 rules.
 
+## Operating Sequence
+
+Follow this order every time:
+
+1. Ground in local evidence before asking questions or choosing candidates.
+2. Choose Light or Full depth after grounding, then upgrade if evidence raises
+   risk.
+3. Build or audit the candidate pool before selecting the main plan.
+4. Critique candidates, converge on the main plan, and define validation.
+5. Emit the DeepPlan output with readiness before any implementation or refresh.
+6. Treat implementation, cachebusters, reinstalls, commits, and durable artifacts
+   as separate execution handoff work after DeepPlan is settled.
+
+DeepPlan self-review, and nontrivial skill/plugin/process/policy changes, must
+use the Full path even when the likely source patch is mostly wording.
+
 ## Use And Depth
 
 Use DeepPlan for architecture or module-boundary changes, migrations,
@@ -61,9 +77,15 @@ dependency-chain slicing, and pressure scenarios.
   one final plan block.
 - Do not create design docs, commits, worktrees, scratch files, or follow-on
   execution plans solely because another workflow would normally do so.
+- If another active workflow normally requires design docs, commits, worktrees,
+  implementation plans, or other artifacts, keep DeepPlan side-effect free and
+  defer those tasks to the host's execution phase.
 - If another active workflow requires approval before implementation, finish the
   DeepPlan output first and leave execution to the host's normal implementation
   phase.
+- If execution after DeepPlan needs write approval, external access, or any
+  durable side effect, name that approval in the handoff instead of performing
+  it during planning.
 
 ## Evidence Policy
 
@@ -76,6 +98,9 @@ dependency-chain slicing, and pressure scenarios.
   workflow/process/skill/plugin reviews, include manifests, skill metadata,
   references, README/dependency notes, validation scripts, published contracts,
   and configured install or execution sources.
+- For DeepPlan/plugin self-review, specifically include Codex and Claude
+  manifests, `SKILL.md`, agent metadata, references, README, dependencies, and
+  any discoverable local install or cache source before claiming readiness.
 - For large repositories, read the inventory, likely entrypoints, public
   interfaces/contracts, relevant modules, tests, configs, docs/runbooks, and
   diffs that can change the plan. Avoid vendor trees, caches, build artifacts,
@@ -200,8 +225,9 @@ the root cause is already verified.
   approval, editing, and verification rules.
 - For local plugin updates, confirm the marketplace/source that points at the
   edited plugin, use the plugin's cachebuster/update helper when available, and
-  reinstall from the confirmed local marketplace. Do not hand-edit marketplace
-  files merely to refresh an installed local plugin.
+  reinstall from the confirmed local marketplace only after source validation.
+  Do not hand-edit marketplace files merely to refresh an installed local
+  plugin.
 - Treat "start a new thread/session to pick up refreshed plugin behavior" as an
   execution handoff note, not as proof that the plan itself is valid.
 
@@ -237,4 +263,5 @@ logs, or minimal reproduction.
 For workflow/process/skill/plugin/policy reviews, keep only changes that alter
 future agent behavior. Pressure-check missed triggers, premature execution,
 missing validation, optional dependency misuse, over-planning, context clutter,
-host output wrapper compatibility, and execution handoff boundaries.
+host output wrapper compatibility, approval boundaries, and execution handoff
+boundaries.

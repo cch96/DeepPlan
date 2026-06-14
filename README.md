@@ -25,6 +25,9 @@ system. It is a pre-execution quality gate.
 - Preserves host-specific output wrappers, such as Codex Plan Mode
   `<proposed_plan>`, while keeping DeepPlan readiness and validation details
   inside that wrapper.
+- Keeps planning side-effect free: implementation, commits, plugin cachebuster
+  updates, reinstalls, and durable artifacts belong to the execution handoff
+  after the DeepPlan output is settled.
 
 ## When To Use
 
@@ -80,7 +83,9 @@ Invoke the deepplan skill to converge this plan before execution.
 
 Requests for deep, no-omissions, converged planning, or skill/process/policy
 improvements should use the full path: candidate comparison, critique,
-validation gate, and residual-risk review.
+validation gate, and residual-risk review. DeepPlan self-review and nontrivial
+plugin or workflow-process changes also use the full path even when the source
+patch is likely to be small.
 
 DeepPlan does not require websearch by default. Use official or primary
 external sources only when current external contracts, APIs, SDK/tool behavior,
@@ -125,14 +130,17 @@ git diff --check
 If your agent environment provides plugin or skill validators, run them against
 the plugin root and `skills/deepplan` before publishing.
 
-For local Codex plugin iteration, update the Codex cachebuster after source
-edits and reinstall from the configured local marketplace. From the plugin root,
-using the plugin-creator helper:
+For local Codex plugin iteration, validate source edits first, then update the
+Codex cachebuster and reinstall from the confirmed local marketplace. From the
+plugin root, using the plugin-creator helper:
 
 ```bash
 python3 <plugin-creator>/scripts/update_plugin_cachebuster.py .
 codex plugin add deepplan@<local-marketplace>
 ```
+
+Do not hand-edit marketplace files merely to refresh an installed local plugin.
+After reinstalling, start a new thread/session to test the refreshed skill.
 
 The skill itself should stay compact. If examples or agent-specific prompt
 packs grow large, move them into `skills/deepplan/references/` and link to them
