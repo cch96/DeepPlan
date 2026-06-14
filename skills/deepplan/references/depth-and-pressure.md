@@ -36,9 +36,9 @@ later evidence ambiguous.
 
 Each scenario is a documentation test. Select the smallest relevant set:
 
-- General first-pass coverage: 21, 22, 23, 24.
+- General first-pass coverage: 21, 22, 23, 24, 30.
 - Workflow/process/skill/plugin optimization: 1, 4, 10, 14, 16, 17, 19, 20,
-  21, 25, 27, 28, 29.
+  21, 25, 27, 28, 29, 30.
 - Host-wrapper or Plan Mode compatibility: 12, 18, 19.
 - Execution handoff or plugin refresh: 13, 20, 26.
 - Unclear bugs/regressions: 7 plus the relevant domain lens.
@@ -264,3 +264,14 @@ README only when those surfaces affect activation, user prompts, readiness, or
 handoff; validate them with source checks.
 Failure: Leaves entrypoints steering users toward obsolete behavior, or changes
 metadata for style without a behavior delta.
+
+### 30. Actionability Gate Must Reject Hidden Decisions
+
+Trigger: A final plan says "run tests", "update as needed", or leaves the
+implementation files, fallback, switch condition, expected result, refresh
+source, or approval boundary for the implementer to choose.
+Expected: The actionability gate blocks `ready`; inspect or ask, or downgrade to
+`ready_with_assumptions`/`not_ready` with the missing decision and safest next
+evidence step.
+Failure: Labels the plan `ready` while execution still requires unstated
+choices or abstract validation.

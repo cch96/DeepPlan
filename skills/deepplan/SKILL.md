@@ -20,7 +20,9 @@ rules.
    after grounding before planning source changes.
 4. Build or audit the candidate pool before selecting the main plan.
 5. Critique candidates, converge, and define validation.
-6. Emit readiness before implementation, cachebuster updates, reinstalls,
+6. Run the actionability gate: no hidden implementer decisions, abstract
+   validation, or vague fallback remains.
+7. Emit readiness before implementation, cachebuster updates, reinstalls,
    commits, durable artifacts, or other execution work.
 
 DeepPlan self-review, and nontrivial workflow/process/skill/plugin/policy
@@ -201,6 +203,14 @@ candidates unless already known:
 - Every validation gate needs pre-change evidence, exact command/test/log/
   inspection/reproduction, expected result, and next inspection or fallback if
   validation fails.
+- Before marking `ready`, run an actionability gate: the implementer should not
+  need to choose the optimization axis, files/modules, main vs backup approach,
+  test command, expected result, fallback, switch condition, refresh source, or
+  approval boundary. Inspect, ask, lower readiness, or state a validation-backed
+  assumption instead.
+- Reject `TBD`, `as needed`, "run tests", "verify works", and similar vague
+  phrasing unless paired with the exact command/inspection, expected result, and
+  failure fallback.
 - For process or skill changes, pressure scenarios count as verification only
   when expected behavior and failure condition are explicit.
 - For plugin/skill changes, include structural validation, metadata parsing,
@@ -238,7 +248,7 @@ Assumptions, and Readiness. If the host imposes a wrapper or section order,
 preserve these fields inside that format instead of emitting a second block.
 
 - `ready`: evidence is sufficient; the chosen plan, required backup/switch
-  condition, and validation gate are executable with no open decisions.
+  condition, and validation gate are executable with no open or hidden decisions.
 - `ready_with_assumptions`: execution is reasonable only under named
   assumptions; include how evidence or validation must confirm them.
 - `not_ready`: missing evidence or decisions could change the main plan,
