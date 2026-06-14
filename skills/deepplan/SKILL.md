@@ -7,12 +7,16 @@ description: Use when refining complex plans, architecture changes, migrations, 
 
 Pre-execution planning gate: turn an initial plan, rough request, or competing
 approaches into one evidence-backed execution plan. Do not implement while this
-skill is active.
+skill is active. If the user also requested implementation, finish or settle the
+DeepPlan output first, then treat execution as a separate phase under the host's
+normal editing and verification rules.
 
 ## Boundaries
 
 - Planning only: no repo-tracked edits, formatters, commits, deploys,
   migrations, durable external writes, or side-effectful execution.
+- If execution is also requested, explicitly end the DeepPlan phase before
+  editing files, running formatters, or making durable changes.
 - Ground in evidence first: read code, docs, configs, schemas, tests, logs,
   runbooks, and provided plans before asking questions or choosing candidates.
 - Run commands only when they clarify evidence and do not change durable state.
@@ -33,7 +37,9 @@ skill/process/policy design; and requests for deep, best, elegant,
 no-omissions, self-review, or converged planning.
 
 Skip it for trivial syntax fixes, one-field edits, simple path/config updates,
-or failures with verified root cause and an obvious patch.
+or failures with verified root cause and an obvious patch. If the user
+explicitly invokes DeepPlan for trivial work, use the Light path and keep the
+output short instead of running a full review.
 
 ## Depth Gate
 
@@ -43,7 +49,8 @@ Choose the path after grounding, then upgrade when new evidence raises risk.
   blast radius, irreversibility, validation difficulty, failure cost, or
   dependency-chain length.
 - Full path: also required for explicit deep/best/elegant/no-omissions/
-  self-review/converged requests, and nontrivial skill/process/policy changes.
+  self-review/converged requests, DeepPlan self-review or optimization, and
+  nontrivial skill/process/policy changes.
 - Light path: allowed only when scope is small, facts are clear, validation is
   obvious, no public API/schema/data/deploy/durable-state risk exists, and the
   user did not request deep/no-omissions/converged planning.
@@ -96,9 +103,14 @@ the root cause is already verified.
   security/privacy, performance/cost, rollout, compatibility, product, or domain
   evidence only when relevant.
 
-Optional integrations stay optional. Use subagents only when the host and user
-allow them and the Full path has 2+ independent read-heavy critique domains.
-If unavailable or inappropriate, continue with solo critique.
+Optional integrations stay optional. Use subagents only when the host supports
+them, policy permits them, and the Full path has 2+ independent read-heavy
+critique domains. Do not ask for permission solely because subagents are
+optional. If unavailable or inappropriate, continue with solo critique.
+
+For skill/process/policy changes, pressure-check the relevant scenarios in
+`references/depth-and-pressure.md` or define an equivalent scenario before
+converging.
 
 ### 5. Converge
 
@@ -120,6 +132,8 @@ Every final plan needs:
 - Exact command, test, log, inspection, or reproduction to run after execution.
 - Expected result for each validation step.
 - Next inspection or fallback when validation fails.
+- Avoid generic gates such as "run tests" unless they name the expected signal
+  and what failure would inspect next.
 
 For dependency-heavy work, output execution-ready slices with objective, inputs,
 preconditions, validation, fallback, owner/actor, and stop condition.
@@ -151,7 +165,9 @@ gaps, or unresolved user preferences could change the plan.
 
 ## Final Output
 
-Always include objective, final main plan, validation gate, and readiness.
+Always include objective, final main plan, validation gate, and readiness. Keep
+the output proportional to the risk; do not dump scratch reasoning, and include
+optional sections only when they change the execution decision.
 
 For Full path, also include candidate comparison, eliminated alternatives, one
 backup plan, and the switch condition. For Light path, include the

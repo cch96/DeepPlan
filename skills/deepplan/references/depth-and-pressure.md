@@ -163,3 +163,15 @@ candidate comparison when required, final plan, validation gate, and readiness.
 
 Failure condition: the wrapper output drops DeepPlan's readiness, backup/switch
 condition, or candidate elimination details.
+
+### 13. Execution Handoff Must Be Explicit
+
+Prompt: "Use DeepPlan to optimize this plugin, then implement the changes."
+
+Expected behavior: the agent completes or settles the DeepPlan planning output
+first, then treats implementation as a separate phase using the host's normal
+editing and verification rules.
+
+Failure condition: the agent edits files while still claiming to be inside the
+DeepPlan planning phase, or skips the planning output because implementation was
+also requested.

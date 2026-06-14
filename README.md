@@ -39,9 +39,17 @@ If another workflow, such as Superpowers brainstorming, already produced 2-3
 approaches, DeepPlan treats them as the candidate pool and audits their
 coverage instead of generating duplicate alternatives.
 
-If the current surface supports subagents, DeepPlan can use them for full-path
-plans with independent read-heavy critique domains. It does not require
-subagents.
+If the current surface supports subagents and policy permits them, DeepPlan can
+use them for full-path plans with independent read-heavy critique domains. It
+does not require subagents and should continue with solo critique when optional
+integrations are unavailable.
+
+## Execution Handoff
+
+DeepPlan is a planning phase, not an implementation phase. If a user asks the
+agent to use DeepPlan and then implement, the agent should first settle the
+DeepPlan output, then leave the DeepPlan phase and apply the host's normal
+editing and verification rules.
 
 ## Usage
 
@@ -95,6 +103,7 @@ Validate plugin metadata after edits:
 ```bash
 python3 -m json.tool .codex-plugin/plugin.json >/dev/null
 python3 -m json.tool .claude-plugin/plugin.json >/dev/null
+git diff --check
 ```
 
 If your agent environment provides plugin or skill validators, run them against
