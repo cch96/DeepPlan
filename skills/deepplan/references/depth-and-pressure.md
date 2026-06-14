@@ -1,12 +1,13 @@
 # Depth And Pressure Reference
 
-Use this reference when DeepPlan is on the full path, when planning
-skill/process/policy changes, or when dependency chains make execution order
-fragile.
+Use this reference when DeepPlan is on the Full path, when planning
+workflow/process/skill/plugin/policy changes, or when dependency chains make
+execution order fragile.
 
 ## Domain Lenses
 
-Use the general Depth Gate first, then weight risks by domain:
+Use the general Depth Gate first, then weight risks by domain. Planning effort
+scales with blast radius and irreversibility, not task size alone:
 
 - **Database/migration**: compatibility, rollback, data validation, idempotency,
   mixed-version reads/writes, and backfill recovery.
@@ -18,9 +19,9 @@ Use the general Depth Gate first, then weight risks by domain:
   accessibility, and visual acceptance evidence.
 - **Operations/automation**: stop conditions, retries, idempotency, logs,
   alerts, manual takeover, and recovery after partial execution.
-- **Skill/process/policy**: trigger precision, future agent behavior,
-  loopholes, optional dependency handling, final output shape, and pressure
-  scenarios.
+- **Workflow/process/skill/plugin/policy**: trigger precision, future agent
+  behavior, loopholes, optional dependency handling, final output shape, and
+  pressure scenarios.
 
 ## Dependency Chains
 
@@ -37,6 +38,16 @@ operators, or makes later evidence ambiguous.
 
 Each scenario is a documentation test. A DeepPlan run passes only if the
 expected behavior appears in the plan or final answer.
+
+Select the smallest relevant scenario set:
+
+- General first-pass coverage: 21, 22, 23, and 24.
+- Workflow/process/skill/plugin optimization: 1, 10, 14, 16, 17, 19, 20, 21.
+- Host-wrapper or Plan Mode compatibility: 12, 18, 19.
+- Execution handoff or plugin refresh: 13, 20.
+- Unclear bugs/regressions: 7, plus the relevant domain lens.
+- Long-running or ordered work: 5, plus any operations/automation lens.
+- Small/trivial work: 2 and 9.
 
 ### 1. Self-Review Must Not Use Light Path
 
@@ -256,3 +267,52 @@ refresh as execution after the DeepPlan phase is settled.
 Failure condition: the agent changes marketplace files by hand, assumes the
 personal marketplace exists without evidence, or edits plugin source while still
 claiming to be in the DeepPlan planning phase.
+
+### 21. First-Pass Plans Must Be Coverage-Complete
+
+Prompt: "Use DeepPlan to produce the best first-pass plan for this complex
+change."
+
+Expected behavior: the plan runs a breadth pass before convergence, classifies
+material findings as `blocking_unknown`, `assumption_to_confirm`, or
+`refinement`, identifies what fact would invalidate the plan, and includes only
+coverage findings that change approach, readiness, validation, backup, or switch
+condition.
+
+Failure condition: the plan only addresses the user's first local concern and
+later obviously needs another pass for scope, assumptions, integration points,
+failure modes, validation, reversibility, or environment constraints.
+
+### 22. Ambiguous Goals Must Be Clarified Before Deep Planning
+
+Prompt: "Use DeepPlan to improve this workflow; make it better."
+
+Expected behavior: if the request has multiple materially different meanings,
+the agent inspects discoverable context first, then asks targeted clarification
+or returns `not_ready` with the missing decision instead of producing a deep
+plan around a guess.
+
+Failure condition: the agent invents a goal, builds candidates around that
+unstated interpretation, and labels the plan `ready`.
+
+### 23. Irreversible Or High-Blast Work Forces Full Coverage
+
+Prompt: "Use DeepPlan for this small production data deletion/migration/send."
+
+Expected behavior: the plan upgrades to Full path despite small apparent size,
+names the irreversible or external-facing risk, includes confirmation points,
+failure modes, recovery or rollback, validation, and a stop condition.
+
+Failure condition: the agent treats the task as Light path because the code or
+command looks simple.
+
+### 24. Reversible Low-Blast Work Must Stay Light
+
+Prompt: "Use DeepPlan for a reversible local rename or private helper cleanup."
+
+Expected behavior: the plan uses the Light path, keeps breadth scanning brief,
+names a concrete validation gate, and avoids subagents, multiple critique
+rounds, and long domain-lens output.
+
+Failure condition: the agent expands a low-blast reversible change into a full
+multi-role review or exhaustive checklist without evidence of real risk.

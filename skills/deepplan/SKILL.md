@@ -7,116 +7,114 @@ description: Use when refining complex plans, architecture changes, migrations, 
 
 Pre-execution planning gate: turn an initial plan, rough request, or competing
 approaches into one evidence-backed execution plan. Do not implement while this
-skill is active. If the user also requested implementation, finish or settle the
-DeepPlan output first, then treat execution as a separate phase under the host's
-normal editing and verification rules.
+skill is active. If implementation is also requested, settle the DeepPlan output
+first, then leave planning and use the host's normal editing and verification
+rules.
 
-## Boundaries
+## Use And Depth
 
-- Planning only: no repo-tracked edits, formatters, commits, deploys,
-  migrations, durable external writes, or side-effectful execution.
-- If execution is also requested, explicitly end the DeepPlan phase before
-  editing files, running formatters, or making durable changes.
-- Ground in evidence first: read code, docs, configs, schemas, tests, logs,
-  runbooks, and provided plans before asking questions or choosing candidates.
-- Run commands only when they clarify evidence and do not change durable state.
-- Ask only for preferences, tradeoffs, or missing goals that cannot be
-  discovered from the environment.
-- If no draft plan exists, infer objective, scope, constraints, and success
-  criteria from available evidence before generating candidates.
-- Keep alternatives in conversation by default. Create scratch artifacts only
-  for user-requested handoff/audit, context limits, or multi-agent coordination;
-  prefer runtime-local or `/tmp` paths.
-
-## Host Compatibility
-
-- Obey the host's active collaboration mode, output wrapper, approval rules, and
-  tool limits. If the host requires a final plan wrapper such as
-  `<proposed_plan>`, put the DeepPlan contract inside that wrapper and emit only
-  one final plan block.
-- Do not create design docs, commits, worktrees, scratch files, or follow-on
-  execution plans solely because another workflow would normally do so. Create
-  artifacts only when the user asked for handoff/audit, context limits require
-  them, or the active host mode requires them.
-- If another active workflow requires approval before implementation, finish the
-  DeepPlan output first and leave execution to the host's normal implementation
-  phase.
-
-## Evidence Scope
-
-- Start by inventorying available local sources with `rg --files`, manifests,
-  docs, tests, schemas, runbooks, logs, and recent diffs when available.
-- Read all relevant non-generated text files when the target is small and
-  bounded enough to fit context, especially for skill/plugin/process reviews.
-  Include manifests, skill metadata, references, README/dependency notes, and
-  installed/cache state when those can change the plan or validation gate.
-- For large repositories, do not blanket-read every file. Read the inventory,
-  likely entrypoints, public interfaces/contracts, relevant modules, tests,
-  configs, docs/runbooks, and diffs that can change the plan.
-- Do not spend context on vendor trees, caches, build artifacts, binaries,
-  generated files, secrets, or unrelated directories unless the plan depends on
-  them.
-- If an unread local source could materially change the main plan, backup plan,
-  or validation gate, return `ready_with_assumptions` or `not_ready` and name
-  the missing evidence.
-
-## External Evidence
-
-- Do not use generic websearch by default. Prefer local code and primary
-  project documentation unless an external fact can change the plan.
-- Use official or primary external sources when the plan depends on current API
-  behavior, SDK/tool/plugin formats, package versions, laws, pricing, release
-  status, service limits, or the user explicitly asks for lookup.
-- For OpenAI, Codex, skills, plugins, Agents SDK, Responses API, or Apps SDK
-  facts, use official OpenAI documentation or configured docs tools before any
-  broader web search.
-- If required external evidence is unavailable or unverified, do not label the
-  plan `ready`; state the dependency and the safest partial plan or validation.
-  If the docs tool is unavailable, use official OpenAI-domain fallback only for
-  the specific contract at issue.
-
-## Use Or Skip
-
-Use DeepPlan for architecture/module-boundary changes; migrations,
-compatibility, rollout, or irreversible state; unclear root cause or multiple
-fixes; multi-module or high-regression work; long-running/expensive operations;
-skill/process/policy design; and requests for deep, best, elegant,
-no-omissions, self-review, or converged planning.
+Use DeepPlan for architecture or module-boundary changes, migrations,
+compatibility, rollout, irreversible state, unclear root cause, multiple fixes,
+multi-module or high-regression work, long-running or expensive operations,
+workflow/process/skill/plugin/policy design, and requests for deep, best,
+elegant, no-omissions, self-review, or converged planning.
 
 Skip it for trivial syntax fixes, one-field edits, simple path/config updates,
-or failures with verified root cause and an obvious patch. If the user
-explicitly invokes DeepPlan for trivial work, use the Light path and keep the
-output short instead of running a full review.
+or failures with verified root cause and an obvious patch. If the user explicitly
+invokes DeepPlan for trivial work, use the Light path and keep output short.
 
-## Depth Gate
-
-Choose the path after grounding, then upgrade when new evidence raises risk.
+Choose the path after grounding, then upgrade when evidence raises risk.
+Planning effort scales by blast radius and irreversibility, not task size alone.
+A reversible local change can stay Light even when subtle; an irreversible,
+external-facing, cross-system, or migration-like change needs Full coverage even
+when small.
 
 - Full path: required when any risk is high, or two are medium: uncertainty,
   blast radius, irreversibility, validation difficulty, failure cost, or
   dependency-chain length.
 - Full path: also required for explicit deep/best/elegant/no-omissions/
-  self-review/converged requests, DeepPlan self-review or optimization, and
-  nontrivial skill/process/policy changes.
+  self-review/converged requests, DeepPlan self-review, nontrivial
+  workflow/process/skill/plugin/policy changes, host-wrapper compatibility risk,
+  external contract changes, or first-pass plans where a missed assumption could
+  invalidate the plan.
 - Light path: allowed only when scope is small, facts are clear, validation is
   obvious, no public API/schema/data/deploy/durable-state risk exists, and the
   user did not request deep/no-omissions/converged planning.
-- Upgrade from Light path immediately if you find a new evidence gap, candidate
+- Upgrade from Light immediately if you find an evidence gap, candidate
   category, medium/high risk, unclear validation, or long dependency chain.
 
 Read `references/depth-and-pressure.md` for Full path domain lenses,
 dependency-chain slicing, and pressure scenarios.
 
+## Boundary And Host Contract
+
+- Planning only: no repo-tracked edits, formatters, generated specs, commits,
+  deploys, migrations, cachebuster updates, plugin reinstalls, marketplace
+  writes, durable external writes, or other side-effectful execution.
+- Run commands only when they clarify evidence and do not change durable state.
+- Keep alternatives in conversation by default. Create scratch artifacts only
+  for user-requested handoff/audit, context limits, or multi-agent coordination;
+  prefer runtime-local or `/tmp` paths.
+- Obey the host's active collaboration mode, output wrapper, approval rules, and
+  tool limits. If the host requires a final plan wrapper such as
+  `<proposed_plan>`, put the DeepPlan contract inside that wrapper and emit only
+  one final plan block.
+- Do not create design docs, commits, worktrees, scratch files, or follow-on
+  execution plans solely because another workflow would normally do so.
+- If another active workflow requires approval before implementation, finish the
+  DeepPlan output first and leave execution to the host's normal implementation
+  phase.
+
+## Evidence Policy
+
+- Ground in evidence before asking questions, choosing candidates, or producing
+  the plan. If no draft plan exists, infer objective, scope, constraints, and
+  success criteria from available evidence before generating candidates.
+- Start with local sources: `rg --files`, manifests, docs, tests, schemas,
+  runbooks, logs, and recent diffs when available.
+- For small bounded targets, read all relevant non-generated text files. For
+  workflow/process/skill/plugin reviews, include manifests, skill metadata,
+  references, README/dependency notes, validation scripts, published contracts,
+  and configured install or execution sources.
+- For large repositories, read the inventory, likely entrypoints, public
+  interfaces/contracts, relevant modules, tests, configs, docs/runbooks, and
+  diffs that can change the plan. Avoid vendor trees, caches, build artifacts,
+  binaries, generated files, secrets, and unrelated directories unless needed.
+- Ask only for preferences, tradeoffs, missing goals, scope boundaries, or risk
+  tolerance that cannot be discovered from the environment.
+- Do not use generic websearch by default. Use official or primary external
+  sources only when current API behavior, SDK/tool/plugin formats, package
+  versions, laws, pricing, release status, service limits, or explicit user
+  lookup could change the plan.
+- For OpenAI, Codex, skills, plugins, Agents SDK, Responses API, or Apps SDK
+  facts, use official OpenAI documentation or configured docs tools before any
+  broader web search.
+- If unread local sources or unverified external evidence could change the main
+  plan, backup, switch condition, or validation gate, do not label the plan
+  `ready`; name the missing evidence and safest partial plan.
+
 ## Workflow
 
-### 1. Ground The Work
+### 1. Ground And Scan Breadth
 
-- State the inferred objective, scope, constraints, and success criteria.
-- Separate confirmed facts from guesses.
-- Identify public interfaces, data/state boundaries, dependencies, and
-  validation surfaces that could change the plan.
-- If grounding reveals an unresolved user preference that could change the main
-  plan, ask before finalizing.
+- State the inferred objective, scope, constraints, success criteria, confirmed
+  facts, and guesses.
+- Identify public interfaces, data/state boundaries, dependencies, integration
+  points, environment/host constraints, validation surfaces, reversibility or
+  recovery, and failure modes that could change the plan.
+- Classify material findings as:
+  - `blocking_unknown`: the plan could be wrong until resolved. Inspect or ask
+    before `ready`; otherwise return `not_ready` with a safe step-zero evidence
+    task.
+  - `assumption_to_confirm`: execution is reasonable only if the assumption
+    holds and the cost of being wrong is acceptable. Surface it explicitly and
+    use `ready_with_assumptions` unless validation will confirm it first.
+  - `refinement`: improves the plan but does not change approach, backup, switch
+    condition, or validation gate. Fold it into the plan without output bloat.
+- Ask: "What fact would make this entire plan wrong?" If plausible and
+  unverified, treat it as a blocking unknown or assumption to confirm.
+- Output only breadth findings that change readiness, approach, validation,
+  backup, or switch condition.
 
 ### 2. Use Root-Cause Mode When Needed
 
@@ -139,9 +137,11 @@ the root cause is already verified.
   design, and compromise architecture.
 - Each candidate needs hypothesis, planned changes, validation, risks, and an
   elimination condition.
-- Do not fabricate candidates just to satisfy a template. If all options are
-  minor tunings of the same plan, collapse them as variants and use the Light
-  path unless the Depth Gate requires Full.
+- Do not fabricate candidates for a template. If all options are minor tunings
+  of the same plan, collapse them as variants and use Light unless the Depth
+  Gate requires Full.
+- For Full path, keep the comparison real even when one candidate is clearly
+  preferred: name the backup and the condition that would switch to it.
 
 ### 4. Critique And Compare
 
@@ -149,77 +149,67 @@ the root cause is already verified.
 - Run a second round when critique finds high/medium risk, a new candidate
   category, an evidence gap, or unresolved tradeoff.
 - Run a third round only for a new high-risk blocker.
-- Always cover architecture, implementation, tests, risk, and simplicity. Add
-  security/privacy, performance/cost, rollout, compatibility, product, or domain
-  evidence only when relevant.
+- Stop critique when another round would not change the main plan, backup,
+  switch condition, validation gate, or readiness.
+- Use role lenses as perspectives, not mandatory roles. Default lenses:
+  correctness/feasibility, user intent/scope, failure modes/reversibility,
+  validation, maintainability/operability, and simplicity. Add domain lenses
+  only when relevant: security/privacy/safety, data/migration/compatibility,
+  compliance, cost/performance, rollout, product/user impact, or research
+  evidence quality.
+- Use subagents only when the host supports them, policy permits them, the plan
+  is Full path, and there are 2+ independent read-heavy evidence domains. An
+  independent domain needs substantial separate reading/searching and can be
+  characterized without waiting on another domain. If subagents are unavailable
+  or inappropriate, continue with solo critique.
+- For workflow/process/skill/plugin/policy changes, pressure-check the relevant
+  scenarios in `references/depth-and-pressure.md` by the future behavior they
+  test; do not run the whole list unless the change touches the whole workflow.
 
-Optional integrations stay optional. Use subagents only when the host supports
-them, policy permits them, and the Full path has 2+ independent read-heavy
-critique domains. Do not ask for permission solely because subagents are
-optional. If unavailable or inappropriate, continue with solo critique.
-
-For skill/process/policy changes, pressure-check the relevant scenarios in
-`references/depth-and-pressure.md` or define an equivalent scenario before
-converging.
-
-### 5. Converge
+### 5. Converge And Define Verification
 
 - Compare candidates on root-cause coverage, risk, testability,
   maintainability, simplicity, and elimination conditions.
 - Eliminate weaker candidates with reasons.
 - Full path must end with exactly one main plan, one backup plan, and a switch
-  condition.
-- Light path must end with a concrete validation gate and the next inspection if
-  validation fails.
+  condition. Light path must end with a concrete validation gate and the next
+  inspection if validation fails.
 - For complex/high-risk plans, run a final adversarial check for fatal issues,
   evidence gaps, hidden regressions, and smaller equivalent plans.
-
-### 6. Define The Verification Gate
-
-Every final plan needs:
-
-- Pre-change evidence for the current issue, risk, or requirement.
-- Exact command, test, log, inspection, or reproduction to run after execution.
-- Expected result for each validation step.
-- Next inspection or fallback when validation fails.
-- Avoid generic gates such as "run tests" unless they name the expected signal
-  and what failure would inspect next.
+- Make the recommendation execution-ready: ordered steps, explicit assumptions,
+  material risks with mitigations, decision points with a recommended choice,
+  verification/acceptance criteria, and confirmation points for irreversible
+  steps.
+- Every validation gate needs pre-change evidence, exact command/test/log/
+  inspection/reproduction, expected result, and next inspection or fallback if
+  validation fails. Avoid generic "run tests" gates.
 - For process or skill changes, pressure scenarios count as verification only
-  when the expected behavior and failure condition are explicit.
+  when expected behavior and failure condition are explicit.
+- For plugin/skill changes, include structural validation, metadata parsing,
+  wrapper/output-shape checks when relevant, and required local refresh steps as
+  a separate post-plan handoff.
+- For dependency-heavy work, output execution-ready slices with objective,
+  inputs, preconditions, validation, fallback, owner/actor, and stop condition.
 
-For dependency-heavy work, output execution-ready slices with objective, inputs,
-preconditions, validation, fallback, owner/actor, and stop condition.
+### 6. Handoff To Execution When Requested
 
-## Stop Rules
+- First emit the DeepPlan output with readiness. Do not edit source, update
+  cachebusters, reinstall plugins, or run mutating workflow steps before that
+  output is settled.
+- After the DeepPlan phase is complete, follow the host's normal implementation,
+  approval, editing, and verification rules.
+- For local plugin updates, confirm the marketplace/source that points at the
+  edited plugin, use the plugin's cachebuster/update helper when available, and
+  reinstall from the confirmed local marketplace. Do not hand-edit marketplace
+  files merely to refresh an installed local plugin.
+- Treat "start a new thread/session to pick up refreshed plugin behavior" as an
+  execution handoff note, not as proof that the plan itself is valid.
 
-Stop only when the latest critique adds no high/medium risk, no materially
-different candidate remains, continuing would not add evidence, and the chosen
-plan plus validation gate are executable.
-
-Full path also requires candidate comparison, eliminated alternatives, one
-backup plan, and the switch condition. Light path requires the
-validation-failure fallback.
-
-Do not stop because "there is no more feedback." If reflection will not add
-evidence, switch to inspection, tests, logs, or minimal reproduction.
-
-## Readiness Labels
-
-- `ready`: evidence is sufficient; the chosen plan, backup/switch condition when
-  required, and validation gate are executable with no open decisions.
-- `ready_with_assumptions`: execution is reasonable only under named
-  assumptions; include what evidence or validation must confirm each assumption.
-- `not_ready`: missing evidence or decisions could change the main plan,
-  backup, or validation gate; include the safest partial plan.
-
-Never label a plan `ready` when unverified external dependencies, evidence
-gaps, or unresolved user preferences could change the plan.
-
-## Final Output
+## Output And Readiness
 
 Always include objective, final main plan, validation gate, and readiness. Keep
-the output proportional to the risk; do not dump scratch reasoning, and include
-optional sections only when they change the execution decision.
+output proportional to risk; do not dump scratch reasoning, and include optional
+sections only when they change the execution decision.
 
 For Full path, also include candidate comparison, eliminated alternatives, one
 backup plan, and the switch condition. For Light path, include the
@@ -231,13 +221,20 @@ Assumptions, and Readiness. Omit empty labels. If the host imposes a wrapper or
 section order, preserve the DeepPlan fields inside that format instead of
 emitting a second DeepPlan block.
 
-Add only when relevant: facts/guesses, root-cause hypotheses, risks, regression
-points, dependency slices, and convergence log.
+- `ready`: evidence is sufficient; the chosen plan, backup/switch condition
+  when required, and validation gate are executable with no open decisions.
+- `ready_with_assumptions`: execution is reasonable only under named
+  assumptions; include what evidence or validation must confirm each assumption.
+- `not_ready`: missing evidence or decisions could change the main plan,
+  backup, switch condition, or validation gate; include the safest partial plan.
 
-For skill/process/policy reviews, keep only changes that alter future agent
-behavior. Pressure-check missed triggers, premature execution, missing
-validation, optional dependency misuse, over-planning, context clutter, and
-host output wrapper compatibility.
+Stop only when the latest critique adds no high/medium risk, no materially
+different candidate remains, continuing would not add evidence, and the chosen
+plan plus validation gate are executable. Do not stop because "there is no more
+feedback"; if reflection will not add evidence, switch to inspection, tests,
+logs, or minimal reproduction.
 
-If the host requires a final-plan wrapper or format, follow it and place the
-DeepPlan output contract inside that wrapper.
+For workflow/process/skill/plugin/policy reviews, keep only changes that alter
+future agent behavior. Pressure-check missed triggers, premature execution,
+missing validation, optional dependency misuse, over-planning, context clutter,
+host output wrapper compatibility, and execution handoff boundaries.
