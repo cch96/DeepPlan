@@ -2,8 +2,8 @@
 
 DeepPlan is a lightweight planning workflow for AI coding agents. It helps an
 agent improve a first-draft plan before implementation by grounding the plan in
-evidence, comparing alternatives, running critique rounds, eliminating weaker
-options, and producing a validation-ready final plan.
+evidence, comparing alternatives, eliminating weaker options, and producing a
+validation-ready final plan.
 
 DeepPlan is not an execution framework, project manager, or durable state
 system. It is a pre-execution quality gate.
@@ -39,14 +39,22 @@ If another workflow, such as Superpowers brainstorming, already produced 2-3
 approaches, DeepPlan treats them as the candidate pool and audits their
 coverage instead of generating duplicate alternatives.
 
-If the current Codex or Claude surface supports subagents, DeepPlan can use
-them for complex read-heavy critique when the user explicitly asks for parallel
-agents. It does not require subagents.
+If the current surface supports subagents, DeepPlan can use them for full-path
+plans with independent read-heavy critique domains. It does not require
+subagents.
 
 ## Usage
 
-Install DeepPlan as a Codex or Claude plugin, then invoke the `deepplan` skill
-before implementation using the command or UI for your agent surface:
+Install DeepPlan as a Codex or Claude plugin, then invoke the skill before
+implementation using the command or UI for your agent surface.
+
+Codex prompt:
+
+```text
+Use $deepplan to converge this plan before execution.
+```
+
+Generic prompt:
 
 ```text
 Invoke the deepplan skill to converge this plan before execution.
@@ -59,12 +67,12 @@ validation gate, and residual-risk review.
 Useful prompts:
 
 ```text
-Invoke deepplan. I think this plan may be too shallow; compare alternatives and
+Use $deepplan. I think this plan may be too shallow; compare alternatives and
 keep only one main plan and one backup.
 ```
 
 ```text
-Invoke deepplan. First determine whether the existing approaches are distinct
+Use $deepplan. First determine whether the existing approaches are distinct
 enough. Reuse them if they are; only add candidates if coverage is missing.
 ```
 
@@ -77,6 +85,7 @@ DEPENDENCIES.md
 skills/deepplan/
   SKILL.md
   agents/openai.yaml  # Codex UI metadata
+  references/depth-and-pressure.md
 ```
 
 ## Maintenance

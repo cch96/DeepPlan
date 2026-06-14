@@ -68,7 +68,19 @@ as required.
 Failure condition: the agent blocks or weakens the plan because optional
 integrations are unavailable.
 
-### 4. Dependency Chain Must Be Mapped
+### 4. Subagent Discretion Is Agent-Owned
+
+Prompt: "Use DeepPlan on a full-path architecture plan with independent API,
+database, and validation risks."
+
+Expected behavior: the agent decides whether subagents would improve independent
+read-heavy critique, then either uses them or records why solo critique is
+enough.
+
+Failure condition: the agent asks for permission by default, treats subagents as
+required, or uses them for non-independent opinions.
+
+### 5. Dependency Chain Must Be Mapped
 
 Prompt: "Plan a long-running automation with model calls, queue work, and manual
 approval."
@@ -79,7 +91,7 @@ stop conditions.
 Failure condition: the agent gives one linear checklist without ownership,
 preconditions, or recovery points.
 
-### 5. Verification Gate Must Be Concrete
+### 6. Verification Gate Must Be Concrete
 
 Prompt: "Choose the elegant refactor for this architecture change."
 
@@ -89,7 +101,29 @@ post-change checks, expected results, and next inspection if validation fails.
 Failure condition: the agent says "run tests" without naming what proves the
 plan or what to inspect on failure.
 
-### 6. Over-Planning Must Be Rejected
+### 7. Root Cause Comes Before Fix Candidates
+
+Prompt: "DeepPlan this regression; I have three possible fixes but no confirmed
+root cause."
+
+Expected behavior: root-cause hypotheses, evidence, and smallest validations are
+listed before fix candidates are compared.
+
+Failure condition: the agent picks a fix candidate first and backfills a root
+cause story afterward.
+
+### 8. Alternatives Stay In Context By Default
+
+Prompt: "Compare three implementation options and converge the plan."
+
+Expected behavior: alternatives and eliminated reasons appear in the final
+answer or plan; no temporary or tracked alternative file is created unless the
+user asks for a handoff/audit artifact or context constraints require scratch.
+
+Failure condition: the agent creates files just to hold candidates for a normal
+single-agent planning turn.
+
+### 9. Over-Planning Must Be Rejected
 
 Prompt: "Rename one local variable in a private helper."
 

@@ -1,6 +1,6 @@
 ---
 name: deepplan
-description: Use when refining complex plans, architecture changes, migrations, unclear root-cause fixes, high-risk approaches, or best/elegant/no-omissions/converged planning requests before execution.
+description: Use when refining complex plans, architecture changes, migrations, unclear root-cause fixes, high-risk approaches, or explicit best/elegant/no-omissions/self-review/converged planning requests before execution.
 ---
 
 # DeepPlan
@@ -16,15 +16,17 @@ while active.
   only to clarify evidence without changing durable state. Cache
   or build artifacts are acceptable only when the host permits them.
 - Ask only for preferences or tradeoffs that cannot be discovered.
-- Oversized work becomes slices with objective, scope, acceptance criteria,
-  validation, dependencies, and stop condition.
+- Respect host and user constraints for permissions, cost, privacy, tools, and
+  side effects; do not restate platform policy inside the plan.
+- Oversized work becomes execution-ready slices with objective, scope,
+  acceptance criteria, validation, dependencies, and stop condition.
 
 ## When To Use
 
 Use for architecture/module-boundary changes; migrations, compatibility, or
 rollout decisions; unclear root cause or multiple fixes; multi-module or
 high-regression work; long-running/expensive operations; and best,
-no-omissions, or converged-plan requests.
+elegant, no-omissions, self-review, or converged-plan requests.
 
 Skip for trivial syntax fixes, one-field edits, simple path/config updates, or
 a failure with verified root cause and obvious patch.
@@ -47,6 +49,14 @@ For domain lenses, dependency-chain handling, and pressure scenarios, read
 `references/depth-and-pressure.md` for full-path, skill/process/policy, or
 dependency-heavy plans.
 
+## Path Requirements
+
+- Light path: ground facts, run one focused critique pass, produce a concrete
+  validation gate, and name the next inspection if validation fails.
+- Full path: compare candidates, critique, eliminate weaker options, choose one
+  main plan and one backup plan, define the switch condition, run a final fatal
+  risk check, and produce readiness.
+
 ## Workflow
 
 ### 1. Ground The Plan
@@ -55,16 +65,10 @@ dependency-heavy plans.
 - Inspect relevant code, docs, tests, logs, configs, or provided plans.
 - Separate confirmed facts from guesses.
 
-### 2. Build The Candidate Pool
+### 2. Root-Cause Mode For Bugs Or Regressions
 
-- Run Root-Cause Mode before fix candidates for bugs or regressions.
-- Reuse existing 2-3 real approaches; do not duplicate covered tradeoffs.
-- Add candidates only for one option or shallow variants of one.
-- Defaults when needed: minimal fix, long-term design, compromise architecture.
-- Each candidate needs hypothesis, changes, validation, risks, and elimination
-  condition. Keep candidates in context unless asked for a durable file.
-
-### 3. Root-Cause Mode
+Run this before fix candidates when the task is a bug, regression, or unclear
+failure. Skip it only when the root cause is already verified.
 
 - List 3-5 plausible root-cause hypotheses.
 - For each, include supporting and disconfirming evidence, smallest validation,
@@ -72,6 +76,20 @@ dependency-heavy plans.
 - Mark unsupported claims as guesses.
 - Eliminate at least two alternative root causes before `ready`, or return
   `ready_with_assumptions` / `not_ready` with the missing evidence.
+
+### 3. Build The Candidate Pool
+
+- Reuse existing 2-3 real approaches; do not duplicate covered tradeoffs.
+- Add candidates only for one option or shallow variants of one.
+- Defaults when needed: minimal fix, long-term design, compromise architecture.
+- Each candidate needs hypothesis, changes, validation, risks, and elimination
+  condition.
+
+Keep candidates and eliminated alternatives in conversation by default. Do not
+create temporary or tracked files for alternatives unless the user asks for a
+durable handoff/audit artifact, host context is too small, or multiple agents
+need a shared scratch artifact. If needed, use a runtime-local or `/tmp` path
+and summarize it in the final output.
 
 ### 4. Critique In Rounds
 
@@ -85,11 +103,15 @@ evidence only when relevant.
 
 ### 5. Optional Subagents
 
-Use subagents only when requested or allowed, and only for unclear root cause,
-high-regression work, architecture tradeoffs, validation planning, or
-high-risk review. They do read-heavy critique, not rewrites. Avoid them for
-light path, trivial work, obvious patches, or opinions without new evidence.
-Summarize must-change, optional improvement, evidence, and readiness verdict.
+Use subagents at your discretion on the full path when the host supports them
+and the task has 2+ independent, read-heavy critique domains whose results can
+be merged without shared edits.
+
+Do not use subagents for light path, trivial work, obvious patches, or when the
+main blocker requires one coherent system-level judgment. If subagents are
+unavailable or disallowed by host/user constraints, continue with solo
+critique. Summarize must-change, optional improvement, evidence, and readiness
+verdict.
 
 ### 6. Tournament And Elimination
 
@@ -132,6 +154,8 @@ behavior; remove explanation-only wording unless it prevents misuse. Check:
   defined?
 - optional dependency misuse: could integrations be treated as required?
 - over-planning: would trivial work be slowed down without reducing risk?
+- context clutter: is this rule correct but unnecessary for DeepPlan's planning
+  responsibility?
 
 ## Final Output
 
@@ -141,6 +165,10 @@ Always include objective, final main plan, validation gate, and readiness
 Add only when relevant: facts/guesses, root-cause hypotheses, eliminated
 alternatives, candidate comparison, backup/switch condition, risks, regression
 points, execution-ready slices, and convergence log.
+
+For full path, include candidate comparison, eliminated alternatives, one backup
+plan, and the switch condition. For light path, include the validation-failure
+fallback instead of a separate backup plan.
 
 If the host requires a final-plan wrapper or format, follow it and place
 DeepPlan sections inside.
