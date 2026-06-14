@@ -14,6 +14,9 @@ DeepPlan has no hard runtime or workflow dependencies.
 - Official docs or web tools: Use only as evidence sources when current
   external contracts, API/tool behavior, package versions, or explicit user
   lookup requests can change the plan.
+- OpenAI Docs MCP: Declared in `skills/deepplan/agents/openai.yaml` as optional
+  UI metadata so Codex can surface the right docs tool for OpenAI, Codex, skill,
+  plugin, API, or SDK contract checks.
 
 ## Dependency Policy
 
@@ -28,3 +31,6 @@ DeepPlan has no hard runtime or workflow dependencies.
   requirements.
 - Do not make websearch or external docs lookup a default dependency for local
   planning work.
+- Do not fail the DeepPlan workflow merely because the OpenAI Docs MCP is
+  unavailable. Use official OpenAI-domain fallback when the contract matters; if
+  that still cannot verify the fact, lower readiness instead of guessing.

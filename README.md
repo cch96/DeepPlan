@@ -22,6 +22,9 @@ system. It is a pre-execution quality gate.
 - Converges full-path reviews to one main plan, one backup plan, validation
   steps, and known residual risks.
 - Splits oversized work into execution-ready slices.
+- Preserves host-specific output wrappers, such as Codex Plan Mode
+  `<proposed_plan>`, while keeping DeepPlan readiness and validation details
+  inside that wrapper.
 
 ## When To Use
 
@@ -45,6 +48,11 @@ If the current surface supports subagents and policy permits them, DeepPlan can
 use them for full-path plans with independent read-heavy critique domains. It
 does not require subagents and should continue with solo critique when optional
 integrations are unavailable.
+
+For OpenAI, Codex, skill, plugin, API, or SDK contract changes, DeepPlan should
+use official OpenAI documentation or configured docs tools before broader web
+lookup. If those sources cannot verify a contract that could change the plan,
+the final readiness should be `ready_with_assumptions` or `not_ready`.
 
 ## Execution Handoff
 
@@ -110,11 +118,21 @@ Validate plugin metadata after edits:
 ```bash
 python3 -m json.tool .codex-plugin/plugin.json >/dev/null
 python3 -m json.tool .claude-plugin/plugin.json >/dev/null
+python3 -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('skills/deepplan/agents/openai.yaml').read_text())"
 git diff --check
 ```
 
 If your agent environment provides plugin or skill validators, run them against
 the plugin root and `skills/deepplan` before publishing.
+
+For local Codex plugin iteration, update the Codex cachebuster after source
+edits and reinstall from the configured local marketplace. From the plugin root,
+using the plugin-creator helper:
+
+```bash
+python3 <plugin-creator>/scripts/update_plugin_cachebuster.py .
+codex plugin add deepplan@<local-marketplace>
+```
 
 The skill itself should stay compact. If examples or agent-specific prompt
 packs grow large, move them into `skills/deepplan/references/` and link to them

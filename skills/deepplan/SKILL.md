@@ -28,12 +28,28 @@ normal editing and verification rules.
   for user-requested handoff/audit, context limits, or multi-agent coordination;
   prefer runtime-local or `/tmp` paths.
 
+## Host Compatibility
+
+- Obey the host's active collaboration mode, output wrapper, approval rules, and
+  tool limits. If the host requires a final plan wrapper such as
+  `<proposed_plan>`, put the DeepPlan contract inside that wrapper and emit only
+  one final plan block.
+- Do not create design docs, commits, worktrees, scratch files, or follow-on
+  execution plans solely because another workflow would normally do so. Create
+  artifacts only when the user asked for handoff/audit, context limits require
+  them, or the active host mode requires them.
+- If another active workflow requires approval before implementation, finish the
+  DeepPlan output first and leave execution to the host's normal implementation
+  phase.
+
 ## Evidence Scope
 
 - Start by inventorying available local sources with `rg --files`, manifests,
   docs, tests, schemas, runbooks, logs, and recent diffs when available.
 - Read all relevant non-generated text files when the target is small and
   bounded enough to fit context, especially for skill/plugin/process reviews.
+  Include manifests, skill metadata, references, README/dependency notes, and
+  installed/cache state when those can change the plan or validation gate.
 - For large repositories, do not blanket-read every file. Read the inventory,
   likely entrypoints, public interfaces/contracts, relevant modules, tests,
   configs, docs/runbooks, and diffs that can change the plan.
@@ -56,6 +72,8 @@ normal editing and verification rules.
   broader web search.
 - If required external evidence is unavailable or unverified, do not label the
   plan `ready`; state the dependency and the safest partial plan or validation.
+  If the docs tool is unavailable, use official OpenAI-domain fallback only for
+  the specific contract at issue.
 
 ## Use Or Skip
 
@@ -121,6 +139,9 @@ the root cause is already verified.
   design, and compromise architecture.
 - Each candidate needs hypothesis, planned changes, validation, risks, and an
   elimination condition.
+- Do not fabricate candidates just to satisfy a template. If all options are
+  minor tunings of the same plan, collapse them as variants and use the Light
+  path unless the Depth Gate requires Full.
 
 ### 4. Critique And Compare
 
@@ -163,6 +184,8 @@ Every final plan needs:
 - Next inspection or fallback when validation fails.
 - Avoid generic gates such as "run tests" unless they name the expected signal
   and what failure would inspect next.
+- For process or skill changes, pressure scenarios count as verification only
+  when the expected behavior and failure condition are explicit.
 
 For dependency-heavy work, output execution-ready slices with objective, inputs,
 preconditions, validation, fallback, owner/actor, and stop condition.
@@ -201,6 +224,12 @@ optional sections only when they change the execution decision.
 For Full path, also include candidate comparison, eliminated alternatives, one
 backup plan, and the switch condition. For Light path, include the
 validation-failure fallback instead of a backup plan.
+
+Use stable labels when the host does not impose a stricter format: Objective,
+Candidate Comparison, Main Plan, Backup Plan, Switch Condition, Validation Gate,
+Assumptions, and Readiness. Omit empty labels. If the host imposes a wrapper or
+section order, preserve the DeepPlan fields inside that format instead of
+emitting a second DeepPlan block.
 
 Add only when relevant: facts/guesses, root-cause hypotheses, risks, regression
 points, dependency slices, and convergence log.

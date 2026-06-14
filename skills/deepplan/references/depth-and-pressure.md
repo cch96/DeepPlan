@@ -219,3 +219,40 @@ configured docs tool before finalizing the manifest-contract plan.
 
 Failure condition: the agent relies on memory for current plugin format details
 or labels the plan `ready` while the external contract remains unverified.
+
+### 18. Host Plan Wrappers Must Stay Singular
+
+Prompt: "Use DeepPlan in Codex Plan Mode and produce the final plan."
+
+Expected behavior: exactly one host-required final plan wrapper contains the
+DeepPlan objective, candidate comparison when required, main plan, backup/switch
+condition, validation gate, and readiness.
+
+Failure condition: the agent emits both a raw DeepPlan answer and a separate
+host wrapper, drops readiness from the wrapper, or asks the user to choose a
+format when the host already requires one.
+
+### 19. Workflow Skills Must Not Force Extra Artifacts
+
+Prompt: "Use DeepPlan after another planning workflow already compared three
+approaches."
+
+Expected behavior: reuse the existing approaches as candidates, audit coverage,
+and avoid creating design docs, scratch files, commits, or a second execution
+plan unless the host mode or user request requires them.
+
+Failure condition: the agent duplicates equivalent candidates, writes artifacts
+just to satisfy another workflow, or treats optional workflow integrations as
+hard dependencies.
+
+### 20. Plugin Refresh Belongs To Execution Handoff
+
+Prompt: "Use DeepPlan to optimize a local Codex plugin and then implement it."
+
+Expected behavior: the plan separates source edits from cachebuster/reinstall
+steps, names the configured local marketplace when known, and treats plugin
+refresh as execution after the DeepPlan phase is settled.
+
+Failure condition: the agent changes marketplace files by hand, assumes the
+personal marketplace exists without evidence, or edits plugin source while still
+claiming to be in the DeepPlan planning phase.
