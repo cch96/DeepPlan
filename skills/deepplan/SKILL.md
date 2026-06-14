@@ -5,192 +5,165 @@ description: Use when refining complex plans, architecture changes, migrations, 
 
 # DeepPlan
 
-Planning gate: turn a first plan into an evidence-backed plan. Do not implement
-while active.
+Pre-execution planning gate: turn an initial plan, rough request, or competing
+approaches into one evidence-backed execution plan. Do not implement while this
+skill is active.
 
 ## Boundaries
 
 - Planning only: no repo-tracked edits, formatters, commits, deploys,
   migrations, durable external writes, or side-effectful execution.
-- Read code, docs, configs, logs, schemas, tests, and prior plans; run checks
-  only to clarify evidence without changing durable state. Cache
-  or build artifacts are acceptable only when the host permits them.
-- Ask only for preferences or tradeoffs that cannot be discovered.
-- If no draft plan exists, derive a provisional plan from available evidence
-  after grounding; ask only when objective, scope, or success criteria cannot be
-  inferred safely.
-- Respect host and user constraints for permissions, cost, privacy, tools, and
-  side effects; do not restate platform policy inside the plan.
-- Oversized work becomes execution-ready slices with objective, scope,
-  acceptance criteria, validation, dependencies, and stop condition.
+- Ground in evidence first: read code, docs, configs, schemas, tests, logs,
+  runbooks, and provided plans before asking questions or choosing candidates.
+- Run commands only when they clarify evidence and do not change durable state.
+- Ask only for preferences, tradeoffs, or missing goals that cannot be
+  discovered from the environment.
+- If no draft plan exists, infer objective, scope, constraints, and success
+  criteria from available evidence before generating candidates.
+- Keep alternatives in conversation by default. Create scratch artifacts only
+  for user-requested handoff/audit, context limits, or multi-agent coordination;
+  prefer runtime-local or `/tmp` paths.
 
-## When To Use
+## Use Or Skip
 
-Use for architecture/module-boundary changes; migrations, compatibility, or
-rollout decisions; unclear root cause or multiple fixes; multi-module or
-high-regression work; long-running/expensive operations; and best,
-elegant, no-omissions, self-review, or converged-plan requests.
+Use DeepPlan for architecture/module-boundary changes; migrations,
+compatibility, rollout, or irreversible state; unclear root cause or multiple
+fixes; multi-module or high-regression work; long-running/expensive operations;
+skill/process/policy design; and requests for deep, best, elegant,
+no-omissions, self-review, or converged planning.
 
-Skip for trivial syntax fixes, one-field edits, simple path/config updates, or
-a failure with verified root cause and obvious patch.
+Skip it for trivial syntax fixes, one-field edits, simple path/config updates,
+or failures with verified root cause and an obvious patch.
 
 ## Depth Gate
 
-Full path when any risk is high, or two are medium: uncertainty, blast radius,
-irreversibility, validation difficulty, failure cost, or dependency-chain
-length. Full path also applies when the user asks for deep, best, elegant,
-no-omissions, converged, or self-review planning; or for skill/process/policy
-design beyond typo or manifest fixes.
+Choose the path after grounding, then upgrade when new evidence raises risk.
 
-Light path is allowed only when scope is small, facts are clear, validation is
-obvious, no public API/schema/data/deploy/durable-state risk exists, and the
-user did not request deep/no-omissions/converged planning. If light path finds a
-new evidence gap, candidate category, medium/high risk, unclear validation, or
-long dependency chain, upgrade to full path.
+- Full path: required when any risk is high, or two are medium: uncertainty,
+  blast radius, irreversibility, validation difficulty, failure cost, or
+  dependency-chain length.
+- Full path: also required for explicit deep/best/elegant/no-omissions/
+  self-review/converged requests, and nontrivial skill/process/policy changes.
+- Light path: allowed only when scope is small, facts are clear, validation is
+  obvious, no public API/schema/data/deploy/durable-state risk exists, and the
+  user did not request deep/no-omissions/converged planning.
+- Upgrade from Light path immediately if you find a new evidence gap, candidate
+  category, medium/high risk, unclear validation, or long dependency chain.
 
-For domain lenses, dependency-chain handling, and pressure scenarios, read
-`references/depth-and-pressure.md` for full-path, skill/process/policy, or
-dependency-heavy plans.
-
-## Path Requirements
-
-- Light path: ground facts, run one focused critique pass, produce a concrete
-  validation gate, and name the next inspection if validation fails.
-- Full path: compare candidates, critique, eliminate weaker options, choose one
-  main plan and one backup plan, define the switch condition, run a final fatal
-  risk check, and produce readiness. If no draft plan exists, build candidates
-  from the grounded baseline before critique.
+Read `references/depth-and-pressure.md` for Full path domain lenses,
+dependency-chain slicing, and pressure scenarios.
 
 ## Workflow
 
-### 1. Ground The Plan
+### 1. Ground The Work
 
-- Identify objective, constraints, success criteria, and scope.
-- Inspect relevant code, docs, tests, logs, configs, or provided plans.
+- State the inferred objective, scope, constraints, and success criteria.
 - Separate confirmed facts from guesses.
-- If the request has no draft plan, state the inferred objective, scope, and
-  success criteria before candidate generation.
+- Identify public interfaces, data/state boundaries, dependencies, and
+  validation surfaces that could change the plan.
+- If grounding reveals an unresolved user preference that could change the main
+  plan, ask before finalizing.
 
-### 2. Root-Cause Mode For Bugs Or Regressions
+### 2. Use Root-Cause Mode When Needed
 
-Run this before fix candidates when the task is a bug, regression, or unclear
-failure. Skip it only when the root cause is already verified.
+For bugs, regressions, or unclear failures, do this before fix candidates unless
+the root cause is already verified.
 
 - List 3-5 plausible root-cause hypotheses.
-- For each, include supporting and disconfirming evidence, smallest validation,
-  and smallest fix if true.
-- Mark unsupported claims as guesses.
-- Eliminate at least two alternative root causes before `ready`, or return
-  `ready_with_assumptions` / `not_ready` with the missing evidence.
+- For each, include supporting evidence, disconfirming evidence, smallest
+  validation, and smallest fix if true.
+- Eliminate at least two alternative causes before `ready`; otherwise return
+  `ready_with_assumptions` or `not_ready` with the missing evidence.
 
 ### 3. Build The Candidate Pool
 
-- Reuse existing 2-3 real approaches; do not duplicate covered tradeoffs.
-- Add candidates only for one option or shallow variants of one.
-- Defaults when needed: minimal safe change, robust long-term design, compromise
-  architecture.
-- Each candidate needs hypothesis, changes, validation, risks, and elimination
-  condition.
+- Reuse existing 2-3 real approaches when supplied; audit coverage instead of
+  duplicating equivalent tradeoffs.
+- Add candidates only when there is one option, shallow variants of one option,
+  or a missing materially different strategy.
+- Default candidate set when needed: minimal safe change, robust long-term
+  design, and compromise architecture.
+- Each candidate needs hypothesis, planned changes, validation, risks, and an
+  elimination condition.
 
-Keep candidates and eliminated alternatives in conversation by default. Do not
-create temporary or tracked files for alternatives unless the user asks for a
-durable handoff/audit artifact, host context is too small, or multiple agents
-need a shared scratch artifact. If needed, use a runtime-local or `/tmp` path
-and summarize it in the final output.
+### 4. Critique And Compare
 
-### 4. Critique In Rounds
+- Run one critique round by default.
+- Run a second round when critique finds high/medium risk, a new candidate
+  category, an evidence gap, or unresolved tradeoff.
+- Run a third round only for a new high-risk blocker.
+- Always cover architecture, implementation, tests, risk, and simplicity. Add
+  security/privacy, performance/cost, rollout, compatibility, product, or domain
+  evidence only when relevant.
 
-Run one critique round by default. Run a second when the first finds high or
-medium risk, a new candidate category, an evidence gap, or an unresolved
-tradeoff. Run a third only for a new high-risk blocker.
+Optional integrations stay optional. Use subagents only when the host and user
+allow them and the Full path has 2+ independent read-heavy critique domains.
+If unavailable or inappropriate, continue with solo critique.
 
-Always cover architecture, implementation, tests, risk, and simplicity. Add
-security/privacy, performance/cost, rollout, compatibility, product, or domain
-evidence only when relevant.
-
-### 5. Optional Subagents
-
-Use subagents at your discretion on the full path when the host supports them
-and the task has 2+ independent, read-heavy critique domains whose results can
-be merged without shared edits.
-
-Do not use subagents for light path, trivial work, obvious patches, or when the
-main blocker requires one coherent system-level judgment. If subagents are
-unavailable or disallowed by host/user constraints, continue with solo
-critique. Summarize must-change, optional improvement, evidence, and readiness
-verdict.
-
-### 6. Tournament And Elimination
+### 5. Converge
 
 - Compare candidates on root-cause coverage, risk, testability,
   maintainability, simplicity, and elimination conditions.
-- Eliminate weaker candidates and state why they are not chosen now.
-- Full path ends with exactly one main plan and one backup plan, plus the switch
-  condition. Final output must preserve candidate comparison.
-- Light path may use validation failure-next-step as the fallback.
-- For complex/high-risk plans, run one final adversarial review for fatal
-  issues, evidence gaps, hidden regressions, and smaller equivalent plans. If a
-  new high or medium issue appears, run one more critique round, then finalize
-  unless the user asks to continue.
+- Eliminate weaker candidates with reasons.
+- Full path must end with exactly one main plan, one backup plan, and a switch
+  condition.
+- Light path must end with a concrete validation gate and the next inspection if
+  validation fails.
+- For complex/high-risk plans, run a final adversarial check for fatal issues,
+  evidence gaps, hidden regressions, and smaller equivalent plans.
 
-### 7. Verification Gate
+### 6. Define The Verification Gate
 
-- Evidence for the current issue or risk before the change.
-- Command, test, log, inspection, or reproduction that should pass after.
+Every final plan needs:
+
+- Pre-change evidence for the current issue, risk, or requirement.
+- Exact command, test, log, inspection, or reproduction to run after execution.
 - Expected result for each validation step.
-- Next inspection if validation fails.
+- Next inspection or fallback when validation fails.
 
-### 8. Stop Rules
+For dependency-heavy work, output execution-ready slices with objective, inputs,
+preconditions, validation, fallback, owner/actor, and stop condition.
 
-Stop only when a critique round is complete, the latest round adds no high or
-medium risk, no materially different candidate remains, continuing would not add
-evidence, the main plan and validation gate are ready, and the full path has a
-backup plus switch condition. Light path needs a validation-failure fallback.
+## Stop Rules
 
-Do not stop because "the agent has no more feedback." If reflection would not
-create evidence, switch to tests, logs, minimal reproduction, or inspection.
+Stop only when the latest critique adds no high/medium risk, no materially
+different candidate remains, continuing would not add evidence, and the chosen
+plan plus validation gate are executable.
+
+Full path also requires candidate comparison, eliminated alternatives, one
+backup plan, and the switch condition. Light path requires the
+validation-failure fallback.
+
+Do not stop because "there is no more feedback." If reflection will not add
+evidence, switch to inspection, tests, logs, or minimal reproduction.
 
 ## Readiness Labels
 
-- `ready`: evidence is sufficient and the chosen plan, backup/switch condition
-  when required, and validation gate are executable without open decisions.
-- `ready_with_assumptions`: execution is reasonable only under named assumptions;
-  include what evidence or validation should confirm each assumption.
+- `ready`: evidence is sufficient; the chosen plan, backup/switch condition when
+  required, and validation gate are executable with no open decisions.
+- `ready_with_assumptions`: execution is reasonable only under named
+  assumptions; include what evidence or validation must confirm each assumption.
 - `not_ready`: missing evidence or decisions could change the main plan,
-  backup, or validation gate; list the safest partial plan.
+  backup, or validation gate; include the safest partial plan.
 
-## Pressure Checks
-
-For skill, process, or policy reviews, keep only changes that alter future agent
-behavior; remove explanation-only wording unless it prevents misuse. Check:
-
-- missed trigger: would the agent load this skill for the right request?
-- premature execution: could the agent start editing while planning?
-- missing validation: are evidence, expected results, and failure inspection
-  defined?
-- optional dependency misuse: could integrations be treated as required?
-- over-planning: would trivial work be slowed down without reducing risk?
-- context clutter: is this rule correct but unnecessary for DeepPlan's planning
-  responsibility?
+Never label a plan `ready` when unverified external dependencies, evidence
+gaps, or unresolved user preferences could change the plan.
 
 ## Final Output
 
-Always include objective, final main plan, validation gate, and readiness
-(`ready`, `ready_with_assumptions`, or `not_ready`).
+Always include objective, final main plan, validation gate, and readiness.
 
-Add only when relevant: facts/guesses, root-cause hypotheses, eliminated
-alternatives, candidate comparison, backup/switch condition, risks, regression
-points, execution-ready slices, and convergence log.
+For Full path, also include candidate comparison, eliminated alternatives, one
+backup plan, and the switch condition. For Light path, include the
+validation-failure fallback instead of a backup plan.
 
-For full path, include candidate comparison, eliminated alternatives, one backup
-plan, and the switch condition. For light path, include the validation-failure
-fallback instead of a separate backup plan.
+Add only when relevant: facts/guesses, root-cause hypotheses, risks, regression
+points, dependency slices, and convergence log.
 
-Do not label a plan `ready` when evidence gaps, unverified external dependencies,
-or unresolved user preferences could change the plan. If no draft plan was
-provided, include the inferred objective and assumptions.
+For skill/process/policy reviews, keep only changes that alter future agent
+behavior. Pressure-check missed triggers, premature execution, missing
+validation, optional dependency misuse, over-planning, context clutter, and
+host output wrapper compatibility.
 
-If the host requires a final-plan wrapper or format, follow it and place
-DeepPlan sections inside.
-
-If not ready, list unresolved decisions and the safest partial plan.
+If the host requires a final-plan wrapper or format, follow it and place the
+DeepPlan output contract inside that wrapper.

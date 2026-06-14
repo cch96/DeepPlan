@@ -1,6 +1,6 @@
 {
   "name": "deepplan",
-  "version": "0.1.0+codex.20260614142702",
+  "version": "0.1.0+codex.20260614144222",
   "description": "Deep plan review before AI agents execute.",
   "author": {
     "name": "DeepPlan Maintainers"
