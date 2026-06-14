@@ -17,7 +17,7 @@ rules.
 2. Choose Light or Full depth after grounding; upgrade when evidence raises
    risk.
 3. For broad "improve/optimize" requests, lock the material optimization axis
-   after grounding before planning source changes.
+   and repeat-edit guard after grounding before planning source changes.
 4. Build or audit the candidate pool before selecting the main plan.
 5. Critique candidates, converge, and define validation.
 6. Run the actionability gate: no hidden implementer decisions, abstract
@@ -117,6 +117,12 @@ Optimization requests:
   emitting a `ready` plan.
 - Name the chosen optimization axis in the Objective or Assumptions so execution
   cannot silently optimize for a different quality than the plan reviewed.
+- For repeated optimization of the same workflow, skill, plugin, or policy,
+  inspect recent diffs/commits or prior review notes when available, then
+  classify the delta as `new_behavior_gap`, `validation_gap`, `metadata_drift`,
+  or `no_material_delta`. Only the first three justify source edits; for
+  `no_material_delta`, emit a no-source-edit plan with validation instead of
+  inventing wording changes.
 - Repeated optimization must have a behavior delta. Do not propose source edits
   for explanation-only, style-only, local-path-specific, or current-thread-only
   changes unless they alter future behavior, readiness, validation, handoff
@@ -205,9 +211,9 @@ candidates unless already known:
   validation fails.
 - Before marking `ready`, run an actionability gate: the implementer should not
   need to choose the optimization axis, files/modules, main vs backup approach,
-  test command, expected result, fallback, switch condition, refresh source, or
-  approval boundary. Inspect, ask, lower readiness, or state a validation-backed
-  assumption instead.
+  edit/no-edit classification, test command, expected result, fallback, switch
+  condition, refresh source, or approval boundary. Inspect, ask, lower readiness,
+  or state a validation-backed assumption instead.
 - Reject `TBD`, `as needed`, "run tests", "verify works", and similar vague
   phrasing unless paired with the exact command/inspection, expected result, and
   failure fallback.

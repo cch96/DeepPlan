@@ -19,6 +19,8 @@ system.
 - Critiques risk, validation, reversibility, maintainability, and simplicity.
 - Names the material optimization axis for broad "improve this" requests before
   planning source changes.
+- Returns a no-source-edit plan when repeated optimization has no material
+  behavior, validation, metadata, or pressure-scenario delta.
 - Converges Full path reviews to one main plan, one backup, a switch condition,
   and concrete validation gates.
 - Applies an actionability gate so `ready` plans do not leave hidden decisions,
@@ -69,7 +71,8 @@ Broad optimization prompt:
 
 ```text
 Use $deepplan to optimize this workflow/skill/plugin. Ground first, name the
-optimization axis, then converge the plan before source edits.
+optimization axis, then converge the plan before source edits. Return no-edit
+when there is no behavior delta.
 ```
 
 ## Repository Layout
@@ -93,7 +96,7 @@ python3 -m json.tool .codex-plugin/plugin.json >/dev/null
 python3 -m json.tool .claude-plugin/plugin.json >/dev/null
 python3 -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('skills/deepplan/agents/openai.yaml').read_text())"
 python3 /home/ubuntu/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
-rg -n "optimization axis|workflow/process/skill/plugin optimization|broad optimization|actionability" \
+rg -n "optimization axis|workflow/process/skill/plugin optimization|broad optimization|actionability|no_material_delta|no-source-edit" \
   README.md .codex-plugin/plugin.json skills/deepplan/SKILL.md \
   skills/deepplan/agents/openai.yaml skills/deepplan/references/depth-and-pressure.md
 git diff --check

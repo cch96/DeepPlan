@@ -38,7 +38,7 @@ Each scenario is a documentation test. Select the smallest relevant set:
 
 - General first-pass coverage: 21, 22, 23, 24, 30.
 - Workflow/process/skill/plugin optimization: 1, 4, 10, 14, 16, 17, 19, 20,
-  21, 25, 27, 28, 29, 30.
+  21, 25, 27, 28, 29, 30, 31.
 - Host-wrapper or Plan Mode compatibility: 12, 18, 19.
 - Execution handoff or plugin refresh: 13, 20, 26.
 - Unclear bugs/regressions: 7 plus the relevant domain lens.
@@ -249,11 +249,15 @@ Failure: Overfits the skill to the current repository or incident.
 ### 28. Repeated Optimization Loops Need A Behavior Delta
 
 Trigger: Optimize an already-valid skill again.
-Expected: Keep only changes that alter future behavior, validation, readiness,
-handoff boundaries, or pressure-scenario outcomes; otherwise report no source
-edit is justified.
+Expected: Inspect recent diffs/history when available, classify the requested
+delta as `new_behavior_gap`, `validation_gap`, `metadata_drift`, or
+`no_material_delta`, and keep only changes that alter future behavior,
+validation, readiness, handoff boundaries, metadata discovery, or
+pressure-scenario outcomes. For `no_material_delta`, return a no-source-edit
+plan with concrete validation.
 Failure: Adds wording or scenarios only because another optimization round was
-requested, or overfits the skill to one current repository/thread.
+requested, skips the edit/no-edit classification, or overfits the skill to one
+current repository/thread.
 
 ### 29. Discovery Metadata Must Match Skill Behavior
 
@@ -275,3 +279,14 @@ Expected: The actionability gate blocks `ready`; inspect or ask, or downgrade to
 evidence step.
 Failure: Labels the plan `ready` while execution still requires unstated
 choices or abstract validation.
+
+### 31. No-Edit Optimization Can Be Ready
+
+Trigger: "Use DeepPlan to optimize this mature workflow again," and grounding
+finds no failing scenario, stale metadata, validation gap, or new behavior
+requirement.
+Expected: The main plan is no source edit, with the optimization axis,
+`no_material_delta` classification, exact validation checks, and the evidence
+that would reopen source changes.
+Failure: Treats lack of edits as `not_ready`, invents wording changes, or omits
+the evidence that would justify reopening implementation.
