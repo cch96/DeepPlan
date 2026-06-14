@@ -92,14 +92,7 @@ skills/deepplan/
 Validate metadata after edits:
 
 ```bash
-python3 -m json.tool .codex-plugin/plugin.json >/dev/null
-python3 -m json.tool .claude-plugin/plugin.json >/dev/null
-python3 -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('skills/deepplan/agents/openai.yaml').read_text())"
-python3 /home/ubuntu/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
-rg -n "optimization axis|workflow/process/skill/plugin optimization|broad optimization|actionability|no_material_delta|no-source-edit" \
-  README.md .codex-plugin/plugin.json skills/deepplan/SKILL.md \
-  skills/deepplan/agents/openai.yaml skills/deepplan/references/depth-and-pressure.md
-git diff --check
+python3 scripts/validate_deepplan_plugin.py
 ```
 
 For local Codex iteration, validate source first, then refresh through the
