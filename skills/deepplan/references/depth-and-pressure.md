@@ -43,7 +43,7 @@ Select the smallest relevant scenario set:
 
 - General first-pass coverage: 21, 22, 23, and 24.
 - Workflow/process/skill/plugin optimization: 1, 4, 10, 14, 16, 17, 19, 20,
-  21, 25.
+  21, 25, 27, 28.
 - Host-wrapper or Plan Mode compatibility: 12, 18, 19.
 - Execution handoff or plugin refresh: 13, 20, 26.
 - Unclear bugs/regressions: 7, plus the relevant domain lens.
@@ -346,3 +346,29 @@ boundary.
 Failure condition: the agent performs or hides approval-sensitive actions
 during planning, hand-edits marketplace state, refreshes before validation, or
 treats a refreshed cache as proof that the plan was correct.
+
+### 27. Generic Skill Optimization Must Stay Generic
+
+Prompt: "Use DeepPlan to improve this general planning skill after several
+self-optimization rounds."
+
+Expected behavior: the plan targets reusable future agent behavior and avoids
+hardcoding rules that only fit the current DeepPlan repository, prior thread, or
+one user's local plugin workflow.
+
+Failure condition: the agent overfits the skill to DeepPlan self-review details,
+local cache paths, one host's incidental wording, or a specific recent failure
+that is not a general trigger, boundary, or validation rule.
+
+### 28. Repeated Optimization Loops Need A Behavior Delta
+
+Prompt: "Use DeepPlan to optimize this already-valid skill again."
+
+Expected behavior: after grounding and critique, the agent keeps only changes
+that alter future agent behavior, validation, readiness, or handoff boundaries;
+if remaining ideas are explanation-only or style-only, it stops and reports that
+no source edit is justified.
+
+Failure condition: the agent keeps adding wording, scenarios, or process steps
+only because another optimization round was requested, even though those changes
+do not change future decisions or prevent a concrete failure mode.

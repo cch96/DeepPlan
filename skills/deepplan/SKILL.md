@@ -75,7 +75,8 @@ dependency-chain slicing, and pressure scenarios.
 - Obey the host's active collaboration mode, output wrapper, approval rules, and
   tool limits. If the host requires a final plan wrapper such as
   `<proposed_plan>`, put the DeepPlan contract inside that wrapper and emit only
-  one final plan block.
+  one final plan block. Host wrapper requirements override the stable label
+  format below; never emit a second raw DeepPlan block beside the host wrapper.
 - Do not create design docs, commits, worktrees, scratch files, or follow-on
   execution plans solely because another workflow would normally do so.
 - If another active workflow normally requires design docs, commits, worktrees,
@@ -158,14 +159,16 @@ the root cause is already verified.
 - Reuse existing 2-3 real approaches when supplied; audit coverage instead of
   duplicating equivalent tradeoffs.
 - Add candidates only when there is one option, shallow variants of one option,
-  or a missing materially different strategy.
+  or a missing materially different strategy that could change the final plan,
+  backup, switch condition, validation gate, or readiness.
 - Default candidate set when needed: minimal safe change, robust long-term
   design, and compromise architecture.
 - Each candidate needs hypothesis, planned changes, validation, risks, and an
   elimination condition.
-- Do not fabricate candidates for a template. If all options are minor tunings
-  of the same plan, collapse them as variants and use Light unless the Depth
-  Gate requires Full.
+- Do not fabricate candidates for a template. Do not force
+  minimal/robust/compromise variants when they are only wording or sequencing
+  tunings of the same strategy. Collapse minor tunings as variants and use Light
+  unless the Depth Gate requires Full.
 - For Full path, keep the comparison real even when one candidate is clearly
   preferred: name the backup and the condition that would switch to it.
 
@@ -193,6 +196,9 @@ the root cause is already verified.
 - For workflow/process/skill/plugin/policy changes, pressure-check the relevant
   scenarios in `references/depth-and-pressure.md` by the future behavior they
   test; do not run the whole list unless the change touches the whole workflow.
+  For selected scenarios, verify the expected behavior and failure condition;
+  output only pass/fail pressure scenario results that affect approach,
+  validation, readiness, backup, or switch condition.
 
 ### 5. Converge And Define Verification
 
@@ -267,4 +273,6 @@ For workflow/process/skill/plugin/policy reviews, keep only changes that alter
 future agent behavior. Pressure-check missed triggers, premature execution,
 missing validation, optional dependency misuse, over-planning, context clutter,
 host output wrapper compatibility, approval boundaries, and execution handoff
-boundaries.
+boundaries. For repeated optimization passes, stop when the remaining changes
+are explanation-only, style-only, or overfit to the current artifact and do not
+alter future agent behavior.
