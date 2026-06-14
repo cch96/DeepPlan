@@ -34,16 +34,20 @@ later evidence ambiguous.
 
 ## Pressure Scenarios
 
-Each scenario is a documentation test. Select the smallest relevant set:
+Each scenario is a documentation test. Select the smallest set that can change
+the plan, validation, backup, readiness, or handoff.
 
-- General first-pass coverage: 21, 22, 23, 24, 30.
-- Workflow/process/skill/plugin optimization: 1, 4, 10, 14, 16, 17, 19, 20,
-  21, 25, 27, 28, 29, 30, 31.
-- Host-wrapper or Plan Mode compatibility: 12, 18, 19.
-- Execution handoff or plugin refresh: 13, 20, 26.
-- Unclear bugs/regressions: 7 plus the relevant domain lens.
-- Long-running or ordered work: 5 plus the operations/automation lens.
-- Small/trivial work: 2, 9.
+### Scenario Selection Index
+
+- **First-pass planning**: 21, 22, 23, 24, 30.
+- **Workflow/process/skill/plugin optimization**: 1, 4, 10, 14, 16, 17, 19,
+  20, 21, 25, 27, 28, 29, 30, 31.
+- **Host-wrapper / Plan Mode**: 12, 18, 19.
+- **Plugin refresh / execution handoff**: 13, 20, 26.
+- **Root cause / regression**: 7 plus the relevant domain lens.
+- **Dependency chain / long-running work**: 5 plus the operations/automation
+  lens.
+- **Small or trivial work**: 2, 9.
 
 ### 1. Self-Review Must Not Use Light Path
 
