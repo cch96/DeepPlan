@@ -1,0 +1,10 @@
+{
+  "name": "deepplan",
+  "displayName": "DeepPlan",
+  "version": "0.1.0",
+  "description": "Deep plan review before AI agents execute.",
+  "author": {
+    "name": "DeepPlan Maintainers"
+  },
+  "skills": "./skills/"
+}

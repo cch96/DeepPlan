@@ -1,0 +1,4 @@
+interface:
+  display_name: "DeepPlan"
+  short_description: "Evidence-backed plan convergence"
+  default_prompt: "Invoke deepplan to compare alternatives, critique risks, and converge this plan before execution."
