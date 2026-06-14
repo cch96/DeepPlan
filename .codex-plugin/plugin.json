@@ -1,6 +1,6 @@
 {
   "name": "deepplan",
-  "version": "0.1.0+codex.20260614174514",
+  "version": "0.1.0+codex.20260614175510",
   "description": "Evidence-backed plan convergence before AI agents execute.",
   "author": {
     "name": "DeepPlan Maintainers"
