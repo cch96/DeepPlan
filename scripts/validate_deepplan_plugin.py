@@ -13,55 +13,209 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_VALIDATOR = Path(
     "/home/ubuntu/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py"
 )
-REQUIRED_TEXT_MARKERS_BY_FILE = {
-    "README.md": (
-        "Names the material optimization axis",
-        "Returns a no-source-edit plan",
-        "concrete validation gates",
-        "Preserves host wrappers",
-        "execution handoff",
-    ),
-    "skills/deepplan/SKILL.md": (
-        "broad \"improve/optimize\" requests",
-        "lock the material optimization axis",
-        "classify the delta as `new_behavior_gap`, `validation_gap`,",
-        "`no_material_delta`",
-        "emit a no-source-edit plan",
-        "actionability gate",
-        "Emit readiness before implementation, cachebuster updates, reinstalls",
-        "Do not use generic websearch by default",
-        "confirmed local marketplace",
-        "Do not hand-edit marketplace",
-    ),
-    "skills/deepplan/references/depth-and-pressure.md": (
-        "Repeated Optimization Loops Need A Behavior Delta",
-        "No-Edit Optimization Can Be Ready",
-        "Discovery Metadata Must Match Skill Behavior",
-        "Actionability Gate Must Reject Hidden Decisions",
-    ),
-}
-CODEX_DEFAULT_PROMPT_MARKERS = (
-    "converge this plan",
-    "compare alternatives",
-    "one main plan, one backup, and validation gates",
-    "optimize a workflow, skill, or plugin",
-    "grounding first",
-    "returning no-edit",
+CLAUDE_MANIFEST_FIELDS = frozenset(
+    {
+        "name",
+        "displayName",
+        "version",
+        "description",
+        "author",
+        "skills",
+    }
 )
-OPENAI_DEFAULT_PROMPT_MARKERS = (
-    "ground evidence",
-    "compare alternatives",
-    "optimization axes",
-    "return no-edit",
+CLAUDE_REQUIRED_STRINGS = {
+    "name": "deepplan",
+    "displayName": "DeepPlan",
+    "skills": "./skills/",
+}
+AnchorSpec = tuple[str, tuple[tuple[str, ...], ...]]
+SectionAnchorSpec = tuple[str, str, tuple[tuple[str, ...], ...]]
+SectionSpec = tuple[str, str]
+README_ANCHORS: tuple[AnchorSpec, ...] = (
+    (
+        "README optimization_axis",
+        (
+            ("optimization axis",),
+            ("broad", "improve"),
+            ("source changes", "implementation starts"),
+        ),
+    ),
+    (
+        "README no_source_edit",
+        (
+            ("no-source-edit", "no source edit", "no-edit"),
+            ("behavior",),
+            ("validation",),
+            ("metadata",),
+        ),
+    ),
+    (
+        "README validation_gates",
+        (
+            ("validation gates",),
+            ("hidden decisions", "actionability gate"),
+            ("fallbacks", "fallback"),
+        ),
+    ),
+    (
+        "README host_wrapper",
+        (
+            ("host wrappers", "wrapper"),
+            ("<proposed_plan>", "plan mode"),
+        ),
+    ),
+    (
+        "README execution_handoff",
+        (
+            ("cachebuster",),
+            ("reinstalls", "reinstall"),
+            ("execution handoff", "handoff"),
+        ),
+    ),
+)
+SKILL_SECTIONS: dict[str, SectionSpec] = {
+    "boundaries": ("## Boundaries And Evidence", "## Workflow"),
+    "grounding": ("Grounding rules:", "Optimization requests:"),
+    "optimization": ("Optimization requests:", "## Workflow"),
+    "converge": ("### 5. Converge And Verify", "### 6. Handoff To Execution"),
+    "handoff": ("### 6. Handoff To Execution", "## Output And Readiness"),
+}
+SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
+    (
+        "SKILL optimization_axis",
+        "optimization",
+        (
+            ("axis",),
+            ("broad", "improve", "optimize", "optimization"),
+            ("objective", "assumptions"),
+            ("ready",),
+        ),
+    ),
+    (
+        "SKILL repeated_no_edit",
+        "optimization",
+        (
+            ("new_behavior_gap",),
+            ("validation_gap",),
+            ("metadata_drift",),
+            ("no_material_delta",),
+            ("no-source-edit", "no source edit", "no-edit"),
+            ("behavior delta",),
+        ),
+    ),
+    (
+        "SKILL actionability_gate",
+        "converge",
+        (
+            ("actionability gate",),
+            ("implementer",),
+            ("expected result",),
+            ("fallback",),
+            ("switch condition",),
+            ("approval boundary",),
+        ),
+    ),
+    (
+        "SKILL host_wrapper_boundary",
+        "boundaries",
+        (
+            ("wrapper",),
+            ("<proposed_plan>",),
+            ("single",),
+            ("second raw block", "second block"),
+        ),
+    ),
+    (
+        "SKILL plugin_refresh_handoff",
+        "handoff",
+        (
+            ("cachebuster",),
+            ("reinstall",),
+            ("marketplace",),
+            ("hand-edit",),
+            ("thread/session", "new thread", "new session"),
+        ),
+    ),
+    (
+        "SKILL metadata_discovery",
+        "grounding",
+        (
+            ("codex",),
+            ("claude",),
+            ("manifests", "manifest"),
+            ("agent/default prompts", "default prompts"),
+            ("install/cache sources", "cache sources"),
+        ),
+    ),
+    (
+        "SKILL websearch_primary_source_boundary",
+        "grounding",
+        (
+            ("websearch",),
+            ("official",),
+            ("primary sources", "primary source"),
+            ("openai",),
+            ("readiness", "ready"),
+        ),
+    ),
+)
+REFERENCE_SCENARIOS = (
+    "Repeated Optimization Loops Need A Behavior Delta",
+    "No-Edit Optimization Can Be Ready",
+    "Discovery Metadata Must Match Skill Behavior",
+    "Actionability Gate Must Reject Hidden Decisions",
+)
+CODEX_PROMPT_ANCHORS: tuple[AnchorSpec, ...] = (
+    (
+        "Codex defaultPrompt planning",
+        (
+            ("deepplan",),
+            ("converge", "compare alternatives"),
+            ("plan",),
+            ("validation", "validation gates"),
+        ),
+    ),
+    (
+        "Codex defaultPrompt backup",
+        (
+            ("main plan",),
+            ("backup",),
+        ),
+    ),
+    (
+        "Codex defaultPrompt optimization",
+        (
+            ("optimize",),
+            ("workflow",),
+            ("skill",),
+            ("plugin",),
+            ("grounding", "ground"),
+            ("no-edit", "no source edit", "no-source-edit"),
+        ),
+    ),
+)
+OPENAI_PROMPT_ANCHORS: tuple[AnchorSpec, ...] = (
+    (
+        "OpenAI default_prompt",
+        (
+            ("deepplan",),
+            ("ground",),
+            ("evidence",),
+            ("alternatives",),
+            ("optimization axes", "optimization axis"),
+            ("no-edit", "no source edit", "no-source-edit"),
+        ),
+    ),
 )
 
 
 def main() -> int:
     checks = (
         check_json_manifests,
+        check_claude_manifest_contract,
         check_agent_yaml,
         check_plugin_structure,
-        check_markers,
+        check_behavior_anchors,
         check_git_diff,
     )
     for check in checks:
@@ -89,6 +243,39 @@ def check_json_manifests() -> None:
     print("OK json manifests")
 
 
+def check_claude_manifest_contract() -> None:
+    data = read_required_json(".claude-plugin/plugin.json")
+    errors = []
+
+    extra_fields = sorted(set(data) - CLAUDE_MANIFEST_FIELDS)
+    if extra_fields:
+        errors.append(
+            "unexpected fields for intentionally minimal Claude manifest: "
+            + ", ".join(extra_fields)
+        )
+
+    for field, expected in CLAUDE_REQUIRED_STRINGS.items():
+        if data.get(field) != expected:
+            errors.append(f"{field} must be {expected!r}")
+
+    for field in ("version", "description"):
+        value = data.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"{field} must be a non-empty string")
+
+    author = data.get("author")
+    if not isinstance(author, dict):
+        errors.append("author must be an object")
+    else:
+        author_name = author.get("name")
+        if not isinstance(author_name, str) or not author_name.strip():
+            errors.append("author.name must be a non-empty string")
+
+    if errors:
+        raise ValidationError("; ".join(errors))
+    print("OK claude manifest contract")
+
+
 def check_agent_yaml() -> None:
     try:
         import yaml
@@ -112,41 +299,93 @@ def check_plugin_structure() -> None:
     print("OK plugin structure")
 
 
-def check_markers() -> None:
-    missing_by_file = {}
-    for relative_path, required_markers in REQUIRED_TEXT_MARKERS_BY_FILE.items():
-        content = read_required_text(relative_path)
-        missing = [marker for marker in required_markers if marker not in content]
-        if missing:
-            missing_by_file[relative_path] = missing
+def check_behavior_anchors() -> None:
+    missing: list[str] = []
+    check_readme_anchors(missing)
+    check_skill_anchors(missing)
+    check_reference_anchors(missing)
+    check_prompt_intent_anchors(missing)
 
-    codex_prompt = read_codex_default_prompt_text()
-    codex_missing = [
-        marker for marker in CODEX_DEFAULT_PROMPT_MARKERS if marker not in codex_prompt
-    ]
-    if codex_missing:
-        missing_by_file[".codex-plugin/plugin.json interface.defaultPrompt"] = (
-            codex_missing
+    if missing:
+        raise ValidationError("missing behavior anchors: " + "; ".join(missing))
+    print("OK behavior anchors")
+
+
+def check_readme_anchors(missing: list[str]) -> None:
+    content = read_required_text("README.md")
+    require_anchors(missing, content, README_ANCHORS)
+
+
+def check_skill_anchors(missing: list[str]) -> None:
+    content = read_required_text("skills/deepplan/SKILL.md")
+    sections = {
+        name: extract_required_section(missing, f"SKILL {name}", content, *bounds)
+        for name, bounds in SKILL_SECTIONS.items()
+    }
+    for anchor, section_name, term_groups in SKILL_ANCHORS:
+        require_anchor(missing, anchor, sections[section_name], *term_groups)
+
+
+def check_reference_anchors(missing: list[str]) -> None:
+    content = read_required_text("skills/deepplan/references/depth-and-pressure.md")
+    for scenario in REFERENCE_SCENARIOS:
+        require_anchor(
+            missing,
+            f"reference scenario {scenario}",
+            content,
+            (scenario,),
         )
 
-    openai_prompt = read_openai_default_prompt_text()
-    openai_missing = [
-        marker
-        for marker in OPENAI_DEFAULT_PROMPT_MARKERS
-        if marker not in openai_prompt
-    ]
-    if openai_missing:
-        missing_by_file[
-            "skills/deepplan/agents/openai.yaml interface.default_prompt"
-        ] = openai_missing
 
-    if missing_by_file:
-        details = "; ".join(
-            f"{relative_path}: {', '.join(missing)}"
-            for relative_path, missing in missing_by_file.items()
-        )
-        raise ValidationError(f"missing behavior markers: {details}")
-    print("OK behavior markers")
+def check_prompt_intent_anchors(missing: list[str]) -> None:
+    require_anchors(missing, read_codex_default_prompt_text(), CODEX_PROMPT_ANCHORS)
+    require_anchors(missing, read_openai_default_prompt_text(), OPENAI_PROMPT_ANCHORS)
+
+
+def extract_required_section(
+    missing: list[str],
+    anchor: str,
+    content: str,
+    start: str,
+    end: str,
+) -> str:
+    lower_content = content.lower()
+    lower_start = start.lower()
+    start_index = lower_content.find(lower_start)
+    if start_index == -1:
+        missing.append(f"{anchor}: section start {start!r}")
+        return ""
+
+    end_index = lower_content.find(end.lower(), start_index + len(lower_start))
+    if end_index == -1:
+        missing.append(f"{anchor}: section end {end!r}")
+        return content[start_index:]
+    return content[start_index:end_index]
+
+
+def require_anchor(
+    missing: list[str],
+    anchor: str,
+    content: str,
+    *term_groups: tuple[str, ...],
+) -> None:
+    normalized = content.lower()
+    missing_groups = [
+        " or ".join(group)
+        for group in term_groups
+        if not any(term.lower() in normalized for term in group)
+    ]
+    if missing_groups:
+        missing.append(f"{anchor}: {', '.join(missing_groups)}")
+
+
+def require_anchors(
+    missing: list[str],
+    content: str,
+    anchors: tuple[AnchorSpec, ...],
+) -> None:
+    for anchor, term_groups in anchors:
+        require_anchor(missing, anchor, content, *term_groups)
 
 
 def read_required_text(relative_path: str) -> str:
