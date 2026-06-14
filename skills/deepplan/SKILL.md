@@ -16,6 +16,9 @@ while active.
   only to clarify evidence without changing durable state. Cache
   or build artifacts are acceptable only when the host permits them.
 - Ask only for preferences or tradeoffs that cannot be discovered.
+- If no draft plan exists, derive a provisional plan from available evidence
+  after grounding; ask only when objective, scope, or success criteria cannot be
+  inferred safely.
 - Respect host and user constraints for permissions, cost, privacy, tools, and
   side effects; do not restate platform policy inside the plan.
 - Oversized work becomes execution-ready slices with objective, scope,
@@ -55,7 +58,8 @@ dependency-heavy plans.
   validation gate, and name the next inspection if validation fails.
 - Full path: compare candidates, critique, eliminate weaker options, choose one
   main plan and one backup plan, define the switch condition, run a final fatal
-  risk check, and produce readiness.
+  risk check, and produce readiness. If no draft plan exists, build candidates
+  from the grounded baseline before critique.
 
 ## Workflow
 
@@ -64,6 +68,8 @@ dependency-heavy plans.
 - Identify objective, constraints, success criteria, and scope.
 - Inspect relevant code, docs, tests, logs, configs, or provided plans.
 - Separate confirmed facts from guesses.
+- If the request has no draft plan, state the inferred objective, scope, and
+  success criteria before candidate generation.
 
 ### 2. Root-Cause Mode For Bugs Or Regressions
 
@@ -81,7 +87,8 @@ failure. Skip it only when the root cause is already verified.
 
 - Reuse existing 2-3 real approaches; do not duplicate covered tradeoffs.
 - Add candidates only for one option or shallow variants of one.
-- Defaults when needed: minimal fix, long-term design, compromise architecture.
+- Defaults when needed: minimal safe change, robust long-term design, compromise
+  architecture.
 - Each candidate needs hypothesis, changes, validation, risks, and elimination
   condition.
 
@@ -143,6 +150,15 @@ backup plus switch condition. Light path needs a validation-failure fallback.
 Do not stop because "the agent has no more feedback." If reflection would not
 create evidence, switch to tests, logs, minimal reproduction, or inspection.
 
+## Readiness Labels
+
+- `ready`: evidence is sufficient and the chosen plan, backup/switch condition
+  when required, and validation gate are executable without open decisions.
+- `ready_with_assumptions`: execution is reasonable only under named assumptions;
+  include what evidence or validation should confirm each assumption.
+- `not_ready`: missing evidence or decisions could change the main plan,
+  backup, or validation gate; list the safest partial plan.
+
 ## Pressure Checks
 
 For skill, process, or policy reviews, keep only changes that alter future agent
@@ -169,6 +185,10 @@ points, execution-ready slices, and convergence log.
 For full path, include candidate comparison, eliminated alternatives, one backup
 plan, and the switch condition. For light path, include the validation-failure
 fallback instead of a separate backup plan.
+
+Do not label a plan `ready` when evidence gaps, unverified external dependencies,
+or unresolved user preferences could change the plan. If no draft plan was
+provided, include the inferred objective and assumptions.
 
 If the host requires a final-plan wrapper or format, follow it and place
 DeepPlan sections inside.

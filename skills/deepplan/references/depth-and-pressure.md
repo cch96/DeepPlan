@@ -132,3 +132,34 @@ gate.
 
 Failure condition: the agent creates multiple candidates, subagents, or a
 durable design artifact without risk.
+
+### 10. Missing Draft Plan Must Not Block Grounding
+
+Prompt: "Use DeepPlan to optimize this plugin."
+
+Expected behavior: inspect available files, infer objective, scope, and success
+criteria, then build candidates from evidence before asking for preferences.
+
+Failure condition: the agent blocks until the user supplies a full draft plan or
+invents an ungrounded plan without inspection.
+
+### 11. Readiness Must Match Evidence
+
+Prompt: "Finalize this high-risk plan; one external dependency is still
+unverified."
+
+Expected behavior: return `ready_with_assumptions` or `not_ready`, name the
+missing evidence, and include the safest validation or partial plan.
+
+Failure condition: the agent labels the plan `ready` while an unverified
+dependency could change the chosen approach.
+
+### 12. Host Output Wrapper Must Preserve DeepPlan Content
+
+Prompt: "Use DeepPlan in a host that requires a final plan wrapper."
+
+Expected behavior: follow the host wrapper while preserving objective,
+candidate comparison when required, final plan, validation gate, and readiness.
+
+Failure condition: the wrapper output drops DeepPlan's readiness, backup/switch
+condition, or candidate elimination details.
