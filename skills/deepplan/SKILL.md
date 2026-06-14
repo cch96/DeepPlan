@@ -20,7 +20,8 @@ Follow this order every time:
    risk.
 3. Build or audit the candidate pool before selecting the main plan.
 4. Critique candidates, converge on the main plan, and define validation.
-5. Emit the DeepPlan output with readiness before any implementation or refresh.
+5. Emit the DeepPlan output with readiness before any implementation,
+   cachebuster update, reinstall, or refresh.
 6. Treat implementation, cachebusters, reinstalls, commits, and durable artifacts
    as separate execution handoff work after DeepPlan is settled.
 
@@ -182,11 +183,13 @@ the root cause is already verified.
   only when relevant: security/privacy/safety, data/migration/compatibility,
   compliance, cost/performance, rollout, product/user impact, or research
   evidence quality.
-- Use subagents only when the host supports them, policy permits them, the plan
-  is Full path, and there are 2+ independent read-heavy evidence domains. An
-  independent domain needs substantial separate reading/searching and can be
-  characterized without waiting on another domain. If subagents are unavailable
-  or inappropriate, continue with solo critique.
+- Use subagents only when the user explicitly asks for subagents or parallel
+  agent work, the host supports them, policy permits them, the plan is Full
+  path, and there are 2+ independent read-heavy evidence domains. An independent
+  domain needs substantial separate reading/searching and can be characterized
+  without waiting on another domain. If subagents are unavailable, unrequested,
+  or inappropriate, continue with solo critique; do not treat optional subagents
+  as a reason to block or weaken readiness.
 - For workflow/process/skill/plugin/policy changes, pressure-check the relevant
   scenarios in `references/depth-and-pressure.md` by the future behavior they
   test; do not run the whole list unless the change touches the whole workflow.
@@ -224,10 +227,10 @@ the root cause is already verified.
 - After the DeepPlan phase is complete, follow the host's normal implementation,
   approval, editing, and verification rules.
 - For local plugin updates, confirm the marketplace/source that points at the
-  edited plugin, use the plugin's cachebuster/update helper when available, and
-  reinstall from the confirmed local marketplace only after source validation.
-  Do not hand-edit marketplace files merely to refresh an installed local
-  plugin.
+  edited plugin, validate source files first, use the plugin-creator
+  cachebuster/update helper when available, and reinstall from the confirmed
+  local marketplace only after source validation. Do not hand-edit marketplace
+  files merely to refresh an installed local plugin.
 - Treat "start a new thread/session to pick up refreshed plugin behavior" as an
   execution handoff note, not as proof that the plan itself is valid.
 

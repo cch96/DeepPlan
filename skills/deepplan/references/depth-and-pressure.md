@@ -42,8 +42,8 @@ expected behavior appears in the plan or final answer.
 Select the smallest relevant scenario set:
 
 - General first-pass coverage: 21, 22, 23, and 24.
-- Workflow/process/skill/plugin optimization: 1, 10, 14, 16, 17, 19, 20, 21,
-  25.
+- Workflow/process/skill/plugin optimization: 1, 4, 10, 14, 16, 17, 19, 20,
+  21, 25.
 - Host-wrapper or Plan Mode compatibility: 12, 18, 19.
 - Execution handoff or plugin refresh: 13, 20, 26.
 - Unclear bugs/regressions: 7, plus the relevant domain lens.
@@ -80,16 +80,18 @@ as required.
 Failure condition: the agent blocks or weakens the plan because optional
 integrations are unavailable.
 
-### 4. Subagent Discretion Is Agent-Owned
+### 4. Subagents Need Explicit User Request
 
 Prompt: "Use DeepPlan on a full-path architecture plan with independent API,
 database, and validation risks."
 
-Expected behavior: the agent decides whether subagents would improve independent
-read-heavy critique, then either uses them or records why solo critique is
-enough.
+Expected behavior: in Codex, the agent uses solo critique because the user did
+not explicitly request subagents or parallel agent work. If the prompt explicitly
+requests subagents and the host supports them, the agent may split independent
+read-heavy domains and return distilled summaries.
 
-Failure condition: the agent asks for permission by default, treats subagents as
+Failure condition: the agent spawns subagents without explicit user request,
+asks for permission merely because subagents are optional, treats subagents as
 required, or uses them for non-independent opinions.
 
 ### 5. Dependency Chain Must Be Mapped

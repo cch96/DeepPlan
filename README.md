@@ -47,10 +47,10 @@ If another workflow, such as Superpowers brainstorming, already produced 2-3
 approaches, DeepPlan treats them as the candidate pool and audits their
 coverage instead of generating duplicate alternatives.
 
-If the current surface supports subagents and policy permits them, DeepPlan can
-use them for full-path plans with independent read-heavy critique domains. It
-does not require subagents and should continue with solo critique when optional
-integrations are unavailable.
+If the user explicitly requests subagents or parallel agent work, and the current
+surface supports them, DeepPlan can use them for full-path plans with independent
+read-heavy critique domains. It does not require subagents and should continue
+with solo critique when subagents are unavailable, unrequested, or inappropriate.
 
 For OpenAI, Codex, skill, plugin, API, or SDK contract changes, DeepPlan should
 use official OpenAI documentation or configured docs tools before broader web
@@ -124,6 +124,7 @@ Validate plugin metadata after edits:
 python3 -m json.tool .codex-plugin/plugin.json >/dev/null
 python3 -m json.tool .claude-plugin/plugin.json >/dev/null
 python3 -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('skills/deepplan/agents/openai.yaml').read_text())"
+python3 <plugin-creator>/scripts/validate_plugin.py .
 git diff --check
 ```
 
@@ -131,12 +132,14 @@ If your agent environment provides plugin or skill validators, run them against
 the plugin root and `skills/deepplan` before publishing.
 
 For local Codex plugin iteration, validate source edits first, then update the
-Codex cachebuster and reinstall from the confirmed local marketplace. From the
+Codex cachebuster and reinstall from the confirmed local marketplace. In this
+workspace the local marketplace is `deepplan-local`; other checkouts should read
+the marketplace name from their marketplace file before reinstalling. From the
 plugin root, using the plugin-creator helper:
 
 ```bash
 python3 <plugin-creator>/scripts/update_plugin_cachebuster.py .
-codex plugin add deepplan@<local-marketplace>
+codex plugin add deepplan@deepplan-local
 ```
 
 Do not hand-edit marketplace files merely to refresh an installed local plugin.

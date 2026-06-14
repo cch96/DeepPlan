@@ -1,7 +1,7 @@
 {
   "name": "deepplan",
-  "version": "0.1.0+codex.20260614161214",
-  "description": "Deep plan review before AI agents execute.",
+  "version": "0.1.0+codex.20260614163049",
+  "description": "Evidence-backed plan convergence before AI agents execute.",
   "author": {
     "name": "DeepPlan Maintainers"
   },
@@ -9,14 +9,14 @@
   "interface": {
     "displayName": "DeepPlan",
     "shortDescription": "Evidence-backed plan convergence before execution",
-    "longDescription": "DeepPlan helps agents turn first-draft plans into evidence-backed execution plans by comparing alternatives, critiquing risks, eliminating weaker options, and defining validation gates before implementation starts.",
+    "longDescription": "DeepPlan helps agents turn first-draft plans into side-effect-free, evidence-backed execution plans by grounding local context, comparing alternatives, critiquing risks, preserving host wrappers, and defining validation gates before implementation starts.",
     "developerName": "DeepPlan Maintainers",
     "category": "Productivity",
     "capabilities": [],
     "defaultPrompt": [
       "Use $deepplan to converge this plan before implementation.",
-      "Use $deepplan to compare alternatives and produce one main plan plus one backup.",
-      "Use $deepplan to check whether this plan has missing risks or a cleaner option."
+      "Use $deepplan to compare alternatives and produce one main plan, one backup, and validation gates.",
+      "Use $deepplan to check missing risks, host-wrapper compatibility, and execution handoff boundaries."
     ]
   }
 }
