@@ -11,6 +11,9 @@ DeepPlan has no hard runtime or workflow dependencies.
   complex, read-heavy critique and independent review.
 - Claude subagents: When host tooling and policy allow, use the same role split
   as the Codex subagent flow.
+- Official docs or web tools: Use only as evidence sources when current
+  external contracts, API/tool behavior, package versions, or explicit user
+  lookup requests can change the plan.
 
 ## Dependency Policy
 
@@ -23,3 +26,5 @@ DeepPlan has no hard runtime or workflow dependencies.
   fall back to the solo critique workflow.
 - Keep optional integrations as interoperability notes, not activation
   requirements.
+- Do not make websearch or external docs lookup a default dependency for local
+  planning work.

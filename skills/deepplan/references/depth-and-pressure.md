@@ -175,3 +175,47 @@ editing and verification rules.
 Failure condition: the agent edits files while still claiming to be inside the
 DeepPlan planning phase, or skips the planning output because implementation was
 also requested.
+
+### 14. Small Bounded Target Should Be Fully Read
+
+Prompt: "Use DeepPlan to improve this small plugin."
+
+Expected behavior: the agent inventories the plugin and reads every relevant
+non-generated text file before converging, because the local evidence is small
+enough to fit context.
+
+Failure condition: the agent samples one file and finalizes while unread plugin
+docs, manifests, or references could change the plan.
+
+### 15. Large Repository Must Be Selective
+
+Prompt: "Use DeepPlan on this large application architecture change."
+
+Expected behavior: the agent inventories the repository, identifies entrypoints,
+public contracts, touched modules, tests, docs, configs, and recent diffs, then
+reads those sources instead of blindly opening every file.
+
+Failure condition: the agent tries to read the whole repository, burns context
+on unrelated generated/vendor/cache files, or claims readiness without naming
+material unread sources.
+
+### 16. Websearch Is Not The Default
+
+Prompt: "Use DeepPlan to optimize this local workflow skill."
+
+Expected behavior: the agent relies on local files unless current external
+facts could change the plan; no generic websearch is used for purely local
+behavior wording.
+
+Failure condition: the agent broad-searches the web before inspecting local
+evidence, or treats websearch as mandatory for every DeepPlan run.
+
+### 17. External Contracts Need Primary Sources
+
+Prompt: "Use DeepPlan to change a Codex plugin manifest field."
+
+Expected behavior: the agent checks official Codex/OpenAI documentation or a
+configured docs tool before finalizing the manifest-contract plan.
+
+Failure condition: the agent relies on memory for current plugin format details
+or labels the plan `ready` while the external contract remains unverified.

@@ -28,6 +28,35 @@ normal editing and verification rules.
   for user-requested handoff/audit, context limits, or multi-agent coordination;
   prefer runtime-local or `/tmp` paths.
 
+## Evidence Scope
+
+- Start by inventorying available local sources with `rg --files`, manifests,
+  docs, tests, schemas, runbooks, logs, and recent diffs when available.
+- Read all relevant non-generated text files when the target is small and
+  bounded enough to fit context, especially for skill/plugin/process reviews.
+- For large repositories, do not blanket-read every file. Read the inventory,
+  likely entrypoints, public interfaces/contracts, relevant modules, tests,
+  configs, docs/runbooks, and diffs that can change the plan.
+- Do not spend context on vendor trees, caches, build artifacts, binaries,
+  generated files, secrets, or unrelated directories unless the plan depends on
+  them.
+- If an unread local source could materially change the main plan, backup plan,
+  or validation gate, return `ready_with_assumptions` or `not_ready` and name
+  the missing evidence.
+
+## External Evidence
+
+- Do not use generic websearch by default. Prefer local code and primary
+  project documentation unless an external fact can change the plan.
+- Use official or primary external sources when the plan depends on current API
+  behavior, SDK/tool/plugin formats, package versions, laws, pricing, release
+  status, service limits, or the user explicitly asks for lookup.
+- For OpenAI, Codex, skills, plugins, Agents SDK, Responses API, or Apps SDK
+  facts, use official OpenAI documentation or configured docs tools before any
+  broader web search.
+- If required external evidence is unavailable or unverified, do not label the
+  plan `ready`; state the dependency and the safest partial plan or validation.
+
 ## Use Or Skip
 
 Use DeepPlan for architecture/module-boundary changes; migrations,

@@ -11,6 +11,8 @@ system. It is a pre-execution quality gate.
 ## What It Does
 
 - Grounds a plan in available code, docs, logs, tests, and user constraints.
+- Scopes evidence gathering: small bounded targets can be read fully, while
+  large repositories should be inventoried first and read selectively.
 - Reuses existing candidate approaches when another planning workflow already
   produced them.
 - Adds distinct candidates only when the current plan has one option or shallow
@@ -71,6 +73,11 @@ Invoke the deepplan skill to converge this plan before execution.
 Requests for deep, no-omissions, converged planning, or skill/process/policy
 improvements should use the full path: candidate comparison, critique,
 validation gate, and residual-risk review.
+
+DeepPlan does not require websearch by default. Use official or primary
+external sources only when current external contracts, APIs, SDK/tool behavior,
+package versions, laws, pricing, releases, or explicit user instructions can
+change the plan.
 
 Useful prompts:
 
