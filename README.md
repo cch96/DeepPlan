@@ -17,6 +17,8 @@ system.
   them.
 - Adds distinct candidates only when coverage is missing.
 - Critiques risk, validation, reversibility, maintainability, and simplicity.
+- Names the material optimization axis for broad "improve this" requests before
+  planning source changes.
 - Converges Full path reviews to one main plan, one backup, a switch condition,
   and concrete validation gates.
 - Preserves host wrappers such as Codex Plan Mode `<proposed_plan>`.
@@ -27,8 +29,8 @@ system.
 
 Use DeepPlan for complex plans, architecture changes, migrations, unclear root
 cause work, multi-module changes, high-regression work, long-running automation,
-workflow/process/skill/plugin/policy changes, or explicit deep/no-omissions/
-converged planning requests.
+workflow/process/skill/plugin/policy changes, broad optimization requests, or
+explicit deep/no-omissions/converged planning requests.
 
 Skip it for trivial syntax fixes, one-field edits, simple path/config changes,
 or failures with verified root cause and an obvious patch.
@@ -61,6 +63,13 @@ Invoke the deepplan skill to compare alternatives, critique risks, and converge
 this plan before execution.
 ```
 
+Broad optimization prompt:
+
+```text
+Use $deepplan to optimize this workflow/skill/plugin. Ground first, name the
+optimization axis, then converge the plan before source edits.
+```
+
 ## Repository Layout
 
 ```text
@@ -82,6 +91,8 @@ python3 -m json.tool .codex-plugin/plugin.json >/dev/null
 python3 -m json.tool .claude-plugin/plugin.json >/dev/null
 python3 -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('skills/deepplan/agents/openai.yaml').read_text())"
 python3 /home/ubuntu/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+rg -n "optimization axis|workflow/process/skill/plugin optimization|broad optimization" \
+  README.md .codex-plugin/plugin.json skills/deepplan/SKILL.md skills/deepplan/agents/openai.yaml
 git diff --check
 ```
 

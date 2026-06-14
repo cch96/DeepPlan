@@ -38,7 +38,7 @@ Each scenario is a documentation test. Select the smallest relevant set:
 
 - General first-pass coverage: 21, 22, 23, 24.
 - Workflow/process/skill/plugin optimization: 1, 4, 10, 14, 16, 17, 19, 20,
-  21, 25, 27, 28.
+  21, 25, 27, 28, 29.
 - Host-wrapper or Plan Mode compatibility: 12, 18, 19.
 - Execution handoff or plugin refresh: 13, 20, 26.
 - Unclear bugs/regressions: 7 plus the relevant domain lens.
@@ -113,9 +113,12 @@ risk.
 ### 10. Missing Draft Plan Must Not Block Grounding
 
 Trigger: "Use DeepPlan to optimize this plugin."
-Expected: Inspect files, infer objective/scope/success criteria, then build
-candidates before asking for preferences.
-Failure: Blocks for a full draft or invents an ungrounded plan.
+Expected: Inspect files, infer objective/scope/success criteria, identify
+material optimization axes, then ask one focused preference question only if
+those axes would lead to different edits. The chosen axis is named in the
+DeepPlan output before source edits are planned.
+Failure: Blocks for a full draft, invents an ungrounded plan, or chooses an
+axis before reading available sources or without carrying it into readiness.
 
 ### 11. Readiness Must Match Evidence
 
@@ -197,9 +200,11 @@ scope, assumptions, integration, failure modes, validation, or reversibility.
 ### 22. Ambiguous Goals Must Be Clarified Before Deep Planning
 
 Trigger: "Improve this workflow; make it better."
-Expected: Inspect discoverable context, then ask or return `not_ready` when
-materially different meanings remain.
-Failure: Builds a ready plan around an unstated interpretation.
+Expected: Inspect discoverable context, then ask, assume a stated default, or
+return `not_ready` when materially different meanings remain and validation
+would not settle them.
+Failure: Builds a ready plan around an unstated interpretation that could
+change approach, backup, switch condition, or validation.
 
 ### 23. Irreversible Or High-Blast Work Forces Full Coverage
 
@@ -227,9 +232,11 @@ Failure: Writes artifacts while still claiming to be in DeepPlan.
 Trigger: Optimize a local plugin, then make Codex use it.
 Expected: Name approvals, validate source before cachebuster changes, use the
 plugin helper, reinstall from a confirmed marketplace, and treat a new session
-as the pickup boundary.
-Failure: Hides approval-sensitive actions, hand-edits marketplace state, or
-treats refreshed cache as proof of plan validity.
+as the pickup boundary. If sandboxed CLI commands fail because they need writes,
+carry that as execution handoff instead of guessing.
+Failure: Hides approval-sensitive actions, hand-edits marketplace state, treats
+refreshed cache as proof of plan validity, or lowers readiness because refresh
+cannot run inside planning.
 
 ### 27. Generic Skill Optimization Must Stay Generic
 
@@ -243,6 +250,17 @@ Failure: Overfits the skill to the current repository or incident.
 
 Trigger: Optimize an already-valid skill again.
 Expected: Keep only changes that alter future behavior, validation, readiness,
-or handoff boundaries; otherwise report no source edit is justified.
+handoff boundaries, or pressure-scenario outcomes; otherwise report no source
+edit is justified.
 Failure: Adds wording or scenarios only because another optimization round was
-requested.
+requested, or overfits the skill to one current repository/thread.
+
+### 29. Discovery Metadata Must Match Skill Behavior
+
+Trigger: DeepPlan changes when it should activate or how broad requests should
+be framed.
+Expected: Update frontmatter, manifest/default prompts, agent metadata, and
+README only when those surfaces affect activation, user prompts, readiness, or
+handoff; validate them with source checks.
+Failure: Leaves entrypoints steering users toward obsolete behavior, or changes
+metadata for style without a behavior delta.

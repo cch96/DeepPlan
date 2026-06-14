@@ -1,7 +1,7 @@
 interface:
   display_name: "DeepPlan"
   short_description: "Evidence-backed plan convergence"
-  default_prompt: "Use $deepplan to compare alternatives, critique risks, and converge this plan before execution."
+  default_prompt: "Use $deepplan to ground local evidence, compare alternatives, name the optimization axis for broad improve requests, and converge one plan before execution."
 dependencies:
   tools:
     - type: "mcp"

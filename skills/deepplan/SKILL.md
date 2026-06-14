@@ -1,6 +1,6 @@
 ---
 name: deepplan
-description: Use when refining complex plans, architecture changes, migrations, unclear root-cause fixes, high-risk approaches, or explicit best/elegant/no-omissions/self-review/converged planning requests before execution.
+description: Use when refining complex plans, architecture changes, migrations, unclear root-cause fixes, high-risk approaches, workflow/process/skill/plugin optimization, or explicit best/elegant/no-omissions/self-review/converged planning requests before execution.
 ---
 
 # DeepPlan
@@ -16,9 +16,11 @@ rules.
 1. Ground in local evidence before asking questions or choosing candidates.
 2. Choose Light or Full depth after grounding; upgrade when evidence raises
    risk.
-3. Build or audit the candidate pool before selecting the main plan.
-4. Critique candidates, converge, and define validation.
-5. Emit readiness before implementation, cachebuster updates, reinstalls,
+3. For broad "improve/optimize" requests, lock the material optimization axis
+   after grounding before planning source changes.
+4. Build or audit the candidate pool before selecting the main plan.
+5. Critique candidates, converge, and define validation.
+6. Emit readiness before implementation, cachebuster updates, reinstalls,
    commits, durable artifacts, or other execution work.
 
 DeepPlan self-review, and nontrivial workflow/process/skill/plugin/policy
@@ -83,8 +85,9 @@ Grounding rules:
   references, README/dependency notes, validation scripts, published contracts,
   and configured install or execution sources.
 - For DeepPlan/plugin self-review, include Codex and Claude manifests,
-  `SKILL.md`, agent metadata, references, README, dependencies, and discoverable
-  local install/cache sources before claiming readiness.
+  `SKILL.md`, frontmatter trigger metadata, agent/default prompts, references,
+  README, dependencies, and discoverable local install/cache sources before
+  claiming readiness.
 - For large repositories, inventory first, then read likely entrypoints, public
   contracts, relevant modules, tests, configs, docs/runbooks, and diffs. Avoid
   vendor, cache, build, binary, generated, secret, and unrelated trees unless
@@ -100,6 +103,22 @@ Grounding rules:
 - If unread local sources or unverified external evidence could change the main
   plan, backup, switch condition, or validation gate, do not label the plan
   `ready`.
+
+Optimization requests:
+
+- For broad requests such as "optimize this", "improve this plugin", or "make
+  this better", infer likely axes from evidence first: behavior reliability,
+  token length, user experience, metadata/installability, validation coverage,
+  and maintainability.
+- If two or more axes would produce materially different edits, ask one focused
+  preference question or state the recommended default as an assumption before
+  emitting a `ready` plan.
+- Name the chosen optimization axis in the Objective or Assumptions so execution
+  cannot silently optimize for a different quality than the plan reviewed.
+- Repeated optimization must have a behavior delta. Do not propose source edits
+  for explanation-only, style-only, local-path-specific, or current-thread-only
+  changes unless they alter future behavior, readiness, validation, handoff
+  boundaries, or pressure-scenario outcomes.
 
 ## Workflow
 
@@ -185,8 +204,8 @@ candidates unless already known:
 - For process or skill changes, pressure scenarios count as verification only
   when expected behavior and failure condition are explicit.
 - For plugin/skill changes, include structural validation, metadata parsing,
-  wrapper/output-shape checks when relevant, and required local refresh steps as
-  a separate post-plan handoff.
+  trigger/default-prompt discovery checks, wrapper/output-shape checks when
+  relevant, and required local refresh steps as a separate post-plan handoff.
 - For dependency-heavy work, output execution slices with objective, inputs,
   preconditions, validation, fallback, owner/actor, and stop condition.
 
@@ -199,8 +218,10 @@ For local plugin updates, confirm the marketplace/source that points at the
 edited plugin, validate source files first, use the plugin-creator
 cachebuster/update helper when available, and reinstall from the confirmed local
 marketplace only after source validation. Do not hand-edit marketplace files to
-refresh an installed local plugin. Treat a new thread/session as the pickup
-boundary, not as proof that the plan was valid.
+refresh an installed local plugin. If confirmation or reinstall commands need
+approval, external access, or writes outside the current sandbox, name that as
+execution handoff work instead of lowering planning rigor. Treat a new
+thread/session as the pickup boundary, not as proof that the plan was valid.
 
 ## Output And Readiness
 
