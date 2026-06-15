@@ -4,15 +4,14 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_VALIDATOR = Path(
-    "/home/ubuntu/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py"
-)
 CLAUDE_MANIFEST_FIELDS = frozenset(
     {
         "name",
@@ -82,6 +81,16 @@ README_ANCHORS: tuple[AnchorSpec, ...] = (
         ),
     ),
     (
+        "README subagent_opt_in_config",
+        (
+            ("configure_subagents.py",),
+            ("suggest-only",),
+            ("allow-readonly-subagents",),
+            ("dry-run",),
+            ("AGENTS.override.md",),
+        ),
+    ),
+    (
         "README host_specific_goal_handoff",
         (
             ("goal mode", "/goal"),
@@ -98,8 +107,18 @@ DEPENDENCIES_ANCHORS: tuple[AnchorSpec, ...] = (
         (
             ("subagents",),
             ("explicitly asks", "explicit user request"),
+            ("DeepPlan-managed",),
             ("lenses", "lens-roles", "lens roles"),
             ("solo critique",),
+        ),
+    ),
+    (
+        "Dependencies maintenance_dependencies",
+        (
+            ("Maintenance Dependencies",),
+            ("PyYAML",),
+            ("DEEPPLAN_PLUGIN_VALIDATOR",),
+            ("CODEX_HOME",),
         ),
     ),
 )
@@ -207,6 +226,7 @@ SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
         "critique",
         (
             ("explicitly asks", "explicit user request"),
+            ("DeepPlan-managed",),
             ("subagents", "parallel agent"),
             ("select", "selected"),
             ("lenses", "lens-roles", "lens roles"),
@@ -217,6 +237,20 @@ SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
             ("switch condition",),
             ("validation",),
             ("readiness",),
+        ),
+    ),
+    (
+        "SKILL subagent_opt_in_modes",
+        "critique",
+        (
+            ("suggest-only",),
+            ("must not spawn",),
+            ("allow-readonly-subagents",),
+            ("read-heavy",),
+            ("explorer",),
+            ("no subagents",),
+            ("write-heavy",),
+            ("parent thread",),
         ),
     ),
     (
@@ -240,6 +274,60 @@ REFERENCE_SCENARIOS = (
     "Actionability Gate Must Reject Hidden Decisions",
     "Subagent Lens-Roles Need Explicit Request And Independent Scope",
     "Host-Specific Goal Handoff Stays Optional",
+)
+SUBAGENT_OPT_IN_ANCHORS: tuple[AnchorSpec, ...] = (
+    (
+        "Subagent opt-in default conservative",
+        (
+            ("conservative by default",),
+            ("explicit",),
+            ("additional tokens",),
+        ),
+    ),
+    (
+        "Subagent opt-in modes",
+        (
+            ("suggest-only",),
+            ("allow-readonly-subagents",),
+            ("remove",),
+        ),
+    ),
+    (
+        "Subagent opt-in markers and failure",
+        (
+            ("deepplan-subagents:start",),
+            ("deepplan-subagents:end",),
+            ("fail closed",),
+            ("byte-stable",),
+        ),
+    ),
+    (
+        "Subagent opt-in host limits",
+        (
+            ("sandbox",),
+            ("approval",),
+            ("filesystem",),
+            ("network",),
+            ("host policy",),
+        ),
+    ),
+    (
+        "Subagent opt-in precedence",
+        (
+            ("closer",),
+            ("AGENTS.override.md",),
+            ("no subagents",),
+        ),
+    ),
+    (
+        "Subagent opt-in subagent limits",
+        (
+            ("recursive",),
+            ("CSV fan-out",),
+            ("role padding",),
+            ("parent agent",),
+        ),
+    ),
 )
 CODEX_PROMPT_ANCHORS: tuple[AnchorSpec, ...] = (
     (
@@ -291,7 +379,10 @@ def main() -> int:
         check_claude_manifest_contract,
         check_agent_yaml,
         check_plugin_structure,
+        check_subagent_opt_in_artifacts,
+        check_configure_subagents_smoke,
         check_behavior_anchors,
+        check_no_stale_local_paths,
         check_git_diff,
     )
     for check in checks:
@@ -369,10 +460,207 @@ def check_agent_yaml() -> None:
 
 
 def check_plugin_structure() -> None:
-    if not PLUGIN_VALIDATOR.is_file():
-        raise ValidationError(f"missing plugin validator: {PLUGIN_VALIDATOR}")
-    run((sys.executable, str(PLUGIN_VALIDATOR), str(ROOT)))
+    plugin_validator = find_plugin_validator()
+    run((sys.executable, str(plugin_validator), str(ROOT)))
     print("OK plugin structure")
+
+
+def find_plugin_validator() -> Path:
+    override = os.environ.get("DEEPPLAN_PLUGIN_VALIDATOR")
+    if override:
+        path = Path(override).expanduser()
+        if path.is_file():
+            return path
+        raise ValidationError(f"missing plugin validator from DEEPPLAN_PLUGIN_VALIDATOR: {path}")
+
+    codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")).expanduser()
+    path = codex_home / "skills/.system/plugin-creator/scripts/validate_plugin.py"
+    if path.is_file():
+        return path
+    raise ValidationError(
+        "missing plugin validator; set DEEPPLAN_PLUGIN_VALIDATOR or install "
+        "plugin-creator under $CODEX_HOME/skills/.system/plugin-creator"
+    )
+
+
+def check_subagent_opt_in_artifacts() -> None:
+    for relative_path in (
+        "scripts/configure_subagents.py",
+        "skills/deepplan/references/subagent-opt-in.md",
+    ):
+        path = ROOT / relative_path
+        if not path.is_file():
+            raise ValidationError(f"missing {relative_path}")
+    print("OK subagent opt-in artifacts")
+
+
+def check_configure_subagents_smoke() -> None:
+    script = ROOT / "scripts/configure_subagents.py"
+    help_result = run_capture((sys.executable, str(script), "--help"))
+    require_output_terms(
+        "configure_subagents --help",
+        help_result.stdout,
+        "--mode",
+        "suggest-only",
+        "allow-readonly-subagents",
+        "remove",
+        "--write",
+        "--check",
+        "--print-snippet",
+    )
+
+    snippet_result = run_capture(
+        (sys.executable, str(script), "--print-snippet", "--mode", "suggest-only")
+    )
+    require_output_terms(
+        "configure_subagents --print-snippet",
+        snippet_result.stdout,
+        "deepplan-subagents:start",
+        "deepplan-subagents:end",
+        "suggest-only",
+        "sandbox",
+        "approval",
+    )
+
+    with tempfile.TemporaryDirectory(prefix="deepplan subagents ") as tmp:
+        tmp_root = Path(tmp)
+        repo = tmp_root / "repo with spaces"
+        nested = repo / "nested" / "cwd"
+        nested.mkdir(parents=True)
+
+        run_capture((sys.executable, str(script), "--repo", str(repo), "--mode", "suggest-only"))
+        agents_path = repo / "AGENTS.md"
+        if agents_path.exists():
+            raise ValidationError("dry-run unexpectedly created AGENTS.md")
+
+        run_capture(
+            (
+                sys.executable,
+                str(script),
+                "--repo",
+                str(repo),
+                "--mode",
+                "suggest-only",
+                "--write",
+            ),
+            cwd=nested,
+        )
+        first = agents_path.read_text(encoding="utf-8")
+        require_output_terms(
+            "suggest-only managed block",
+            first,
+            "deepplan-subagents:start",
+            "deepplan-subagents:end",
+            "Mode: suggest-only",
+            "may recommend",
+            "must not spawn",
+        )
+
+        run_capture(
+            (
+                sys.executable,
+                str(script),
+                "--repo",
+                str(repo),
+                "--mode",
+                "suggest-only",
+                "--write",
+            )
+        )
+        second = agents_path.read_text(encoding="utf-8")
+        if second != first:
+            raise ValidationError("same-mode write is not byte-stable")
+
+        run_capture(
+            (
+                sys.executable,
+                str(script),
+                "--repo",
+                str(repo),
+                "--mode",
+                "allow-readonly-subagents",
+                "--write",
+            )
+        )
+        third = agents_path.read_text(encoding="utf-8")
+        require_output_terms(
+            "allow-readonly-subagents managed block",
+            third,
+            "Mode: allow-readonly-subagents",
+            "standing explicit request",
+            "read-heavy",
+            "sandbox",
+            "approval",
+        )
+        if third == second:
+            raise ValidationError("mode replacement did not change AGENTS.md")
+
+        run_capture((sys.executable, str(script), "--repo", str(repo), "--check"))
+
+        before_remove_dry_run = agents_path.read_text(encoding="utf-8")
+        run_capture((sys.executable, str(script), "--repo", str(repo), "--mode", "remove"))
+        if agents_path.read_text(encoding="utf-8") != before_remove_dry_run:
+            raise ValidationError("dry-run remove changed AGENTS.md")
+
+        agents_path.write_text(
+            "prefix\n\n" + before_remove_dry_run + "\n\nsuffix\n",
+            encoding="utf-8",
+        )
+        run_capture(
+            (
+                sys.executable,
+                str(script),
+                "--repo",
+                str(repo),
+                "--mode",
+                "remove",
+                "--write",
+            )
+        )
+        removed = agents_path.read_text(encoding="utf-8")
+        if "deepplan-subagents:" in removed or "prefix" not in removed or "suffix" not in removed:
+            raise ValidationError("remove did not preserve surrounding AGENTS.md content")
+
+        malformed = "before\n<!-- deepplan-subagents:start -->\nmissing end\n"
+        agents_path.write_text(malformed, encoding="utf-8")
+        bad_result = run_capture(
+            (
+                sys.executable,
+                str(script),
+                "--repo",
+                str(repo),
+                "--mode",
+                "suggest-only",
+                "--write",
+            ),
+            check=False,
+        )
+        if bad_result.returncode == 0:
+            raise ValidationError("malformed marker write unexpectedly succeeded")
+        if agents_path.read_text(encoding="utf-8") != malformed:
+            raise ValidationError("malformed marker failure changed AGENTS.md")
+
+        override_repo = tmp_root / "override repo"
+        override_repo.mkdir()
+        (override_repo / "AGENTS.override.md").write_text("override\n", encoding="utf-8")
+        override_result = run_capture(
+            (
+                sys.executable,
+                str(script),
+                "--repo",
+                str(override_repo),
+                "--mode",
+                "suggest-only",
+                "--write",
+            ),
+            check=False,
+        )
+        if override_result.returncode == 0:
+            raise ValidationError("non-empty AGENTS.override.md did not fail closed")
+        if (override_repo / "AGENTS.md").exists():
+            raise ValidationError("override failure unexpectedly created AGENTS.md")
+
+    print("OK configure_subagents smoke")
 
 
 def check_behavior_anchors() -> None:
@@ -417,11 +705,34 @@ def check_reference_anchors(missing: list[str]) -> None:
             content,
             (scenario,),
         )
+    require_anchors(
+        missing,
+        read_required_text("skills/deepplan/references/subagent-opt-in.md"),
+        SUBAGENT_OPT_IN_ANCHORS,
+    )
 
 
 def check_prompt_intent_anchors(missing: list[str]) -> None:
     require_anchors(missing, read_codex_default_prompt_text(), CODEX_PROMPT_ANCHORS)
     require_anchors(missing, read_openai_default_prompt_text(), OPENAI_PROMPT_ANCHORS)
+
+
+def check_no_stale_local_paths() -> None:
+    stale_home = "/" + "home/ubuntu"
+    stale_marketplace = "deepplan" + "-local"
+    for relative_path in (
+        "README.md",
+        "DEPENDENCIES.md",
+        "scripts/validate_deepplan_plugin.py",
+    ):
+        content = read_required_text(relative_path)
+        if stale_home in content:
+            raise ValidationError(f"{relative_path} contains stale {stale_home} path")
+        if stale_marketplace in content:
+            raise ValidationError(
+                f"{relative_path} contains stale {stale_marketplace} marketplace"
+            )
+    print("OK no stale local paths")
 
 
 def extract_required_section(
@@ -468,6 +779,13 @@ def require_anchors(
 ) -> None:
     for anchor, term_groups in anchors:
         require_anchor(missing, anchor, content, *term_groups)
+
+
+def require_output_terms(anchor: str, content: str, *terms: str) -> None:
+    normalized = content.lower()
+    missing = [term for term in terms if term.lower() not in normalized]
+    if missing:
+        raise ValidationError(f"{anchor} missing terms: {', '.join(missing)}")
 
 
 def read_required_text(relative_path: str) -> str:
@@ -551,6 +869,29 @@ def run(command: tuple[str, ...]) -> None:
             if part.strip()
         )
         raise ValidationError(details or f"{command!r} exited {completed.returncode}")
+
+
+def run_capture(
+    command: tuple[str, ...],
+    *,
+    cwd: Path | None = None,
+    check: bool = True,
+) -> subprocess.CompletedProcess[str]:
+    completed = subprocess.run(
+        command,
+        cwd=cwd or ROOT,
+        check=False,
+        text=True,
+        capture_output=True,
+    )
+    if check and completed.returncode != 0:
+        details = "\n".join(
+            part.strip()
+            for part in (completed.stdout, completed.stderr)
+            if part.strip()
+        )
+        raise ValidationError(details or f"{command!r} exited {completed.returncode}")
+    return completed
 
 
 class ValidationError(Exception):

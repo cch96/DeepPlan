@@ -53,7 +53,8 @@ Depth scales by blast radius and irreversibility, not apparent task size:
   medium/high risk, unclear validation, or a long dependency chain.
 
 Read `references/depth-and-pressure.md` for Full path lenses, dependency-chain
-slicing, and pressure scenarios.
+slicing, and pressure scenarios. Read `references/subagent-opt-in.md` before
+treating repository `AGENTS.md` guidance as standing subagent authorization.
 
 ## Boundaries And Evidence
 
@@ -173,18 +174,27 @@ at least two alternatives before `ready`; otherwise return
   intent/scope, failure modes/reversibility, validation,
   maintainability/operability, and simplicity. Add domain lenses only when
   relevant.
-- If the user explicitly asks for subagents or parallel agent work but does not
-  name roles, select 2-4 relevant lens-roles from the critique/domain lenses
-  after grounding. Each selected lens-role needs an independent read-heavy
-  critique scope and output that could change the main plan, backup, switch
-  condition, validation gate, or readiness; use fewer than four when fewer
-  independent domains exist.
+- If the user explicitly asks for subagents or parallel agent work, or the
+  active repository has a DeepPlan-managed `AGENTS.md` opt-in block that permits
+  the current use, but roles are not named, select 2-4 relevant lens-roles from
+  the critique/domain lenses after grounding. Each selected lens-role needs an
+  independent read-heavy critique scope and output that could change the main plan,
+  backup, switch condition, validation gate, or readiness; use fewer than
+  four when fewer independent domains exist.
+- A DeepPlan-managed `AGENTS.md` block counts as standing user intent only within
+  its mode: `suggest-only` may recommend a lineup but must not spawn;
+  `allow-readonly-subagents` may spawn direct read-heavy/explorer subagents for
+  Full path planning. Current user instructions, closer project instructions, or
+  any "no subagents" instruction override the block.
 - Use subagents only when the user explicitly asks for subagents or parallel
-  agent work, the host supports them, policy permits them, the plan is Full, and
-  there are 2+ independent read-heavy evidence domains. Do not create fake debate
-  roles, pad the count, or duplicate reviewers. If subagents are unrequested,
-  unavailable, not Full, or lack independent domains, continue with solo critique;
-  optional subagents must not block or weaken readiness.
+  agent work, or a permitted DeepPlan-managed opt-in block applies, and the host
+  supports them, policy permits them, the plan is Full, and there are 2+
+  independent read-heavy evidence domains. Do not create fake debate roles, pad
+  the count, duplicate reviewers, recurse, use CSV fan-out, or use write-heavy
+  worker subagents while DeepPlan is active. Harvest results, close completed
+  agents, and keep final planning judgment in the parent thread. If subagents
+  are unrequested, unavailable, not Full, or lack independent domains, continue
+  with solo critique; optional subagents must not block or weaken readiness.
 - For workflow/process/skill/plugin/policy changes, pressure-check only relevant
   scenarios from `references/depth-and-pressure.md`; output only results that
   affect approach, validation, readiness, backup, or switch condition.
