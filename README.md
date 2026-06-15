@@ -54,6 +54,9 @@ web/docs lookup are optional evidence sources only:
 - Use official OpenAI/Codex docs only when current external contracts can change
   the plan. If a needed contract remains unverified, lower readiness to
   `ready_with_assumptions` or `not_ready`.
+- Codex Goal Mode (`/goal`) is an optional host-specific execution handoff for
+  long tasks with clear completion criteria and validation. Claude and
+  non-Codex hosts receive the same handoff as plain instructions.
 
 ## Usage
 

@@ -81,6 +81,16 @@ README_ANCHORS: tuple[AnchorSpec, ...] = (
             ("independent read-heavy", "independent critique"),
         ),
     ),
+    (
+        "README host_specific_goal_handoff",
+        (
+            ("goal mode", "/goal"),
+            ("codex",),
+            ("claude", "non-codex", "non codex"),
+            ("optional", "host-specific", "host specific"),
+            ("handoff",),
+        ),
+    ),
 )
 DEPENDENCIES_ANCHORS: tuple[AnchorSpec, ...] = (
     (
@@ -158,6 +168,19 @@ SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
         ),
     ),
     (
+        "SKILL host_specific_goal_handoff",
+        "handoff",
+        (
+            ("goal mode", "/goal"),
+            ("codex",),
+            ("claude", "non-codex", "non codex"),
+            ("optional", "host-specific", "host specific"),
+            ("completion criteria", "acceptance criteria"),
+            ("validation",),
+            ("do not require", "must not require", "not require"),
+        ),
+    ),
+    (
         "SKILL metadata_discovery",
         "grounding",
         (
@@ -216,6 +239,7 @@ REFERENCE_SCENARIOS = (
     "Discovery Metadata Must Match Skill Behavior",
     "Actionability Gate Must Reject Hidden Decisions",
     "Subagent Lens-Roles Need Explicit Request And Independent Scope",
+    "Host-Specific Goal Handoff Stays Optional",
 )
 CODEX_PROMPT_ANCHORS: tuple[AnchorSpec, ...] = (
     (

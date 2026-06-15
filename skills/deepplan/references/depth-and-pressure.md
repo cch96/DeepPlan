@@ -47,6 +47,7 @@ the plan, validation, backup, readiness, or handoff.
 - **Root cause / regression**: 7 plus the relevant domain lens.
 - **Dependency chain / long-running work**: 5 plus the operations/automation
   lens.
+- **Host-specific long-running handoff**: 33.
 - **Small or trivial work**: 2, 9.
 
 ### 1. Self-Review Must Not Use Light Path
@@ -307,3 +308,13 @@ continue with solo critique; optional subagents do not block readiness.
 Failure: Spawns subagents without explicit request, pads to four roles, creates
 fake debate roles, duplicates reviewers, or weakens readiness because optional
 subagents are unavailable.
+
+### 33. Host-Specific Goal Handoff Stays Optional
+
+Trigger: A long-running plan is intended for both Codex and Claude.
+Expected: Codex Goal Mode (`/goal`) may be named as an optional handoff only
+when completion criteria and validation are explicit. Claude and non-Codex hosts
+receive normal execution handoff instructions, and lack of `/goal` does not
+lower readiness.
+Failure: Requires `/goal` universally, treats Claude as if it supports Codex
+Goal Mode, or weakens readiness because a non-Codex host lacks `/goal`.

@@ -224,6 +224,11 @@ at least two alternatives before `ready`; otherwise return
 First emit the DeepPlan output with readiness. After that, follow the host's
 normal implementation, approval, editing, and verification rules.
 
+For long-running execution, Codex Goal Mode (`/goal`) is an optional
+host-specific handoff only after objective, completion criteria, and validation
+are explicit. Do not require `/goal` for Claude or other non-Codex hosts; give
+them the same execution handoff as plain instructions.
+
 For local plugin updates, confirm the marketplace/source, validate source first,
 use the plugin-creator cachebuster helper when available, and reinstall from the
 confirmed local marketplace only after validation. Do not hand-edit marketplace
