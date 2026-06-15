@@ -10,6 +10,31 @@ that delegation intent explicit.
 permission primitive and does not change filesystem, network, sandbox,
 approval, model, custom-agent, thread-depth, or host policy.
 
+## First-Use Prompt
+
+When no explicit user request and no `allow-readonly-subagents` block applies,
+DeepPlan may ask on the first suitable subagent use in the current session. The
+prompt is session-scoped for the active repository and only appears after
+grounding confirms a Full-path task, host support, policy permission, no closer
+"no subagents" rule, and two to four independent read-heavy domains that could
+change the main plan, backup, switch condition, validation gate, or readiness.
+
+The prompt is an ephemeral current-task authorization path, not durable repo
+policy:
+
+- `Use for this task`: authorize bounded read-only/explorer subagents for the
+  current task only.
+- `Use now and enable repo`: authorize the current task and add a post-DeepPlan
+  execution handoff to run `python3 scripts/configure_subagents.py --repo
+  <repo> --mode allow-readonly-subagents --write`. Future sessions may rely on
+  the durable block only after it is written and a new session starts.
+- `Do not use`: continue with solo critique for this task/session opportunity
+  and do not lower readiness.
+
+The first-use prompt must not spawn subagents before the user chooses, must not
+write `AGENTS.md` while DeepPlan is active, and must not treat install, update,
+cachebuster, or reinstall work as subagent authorization.
+
 ## Modes
 
 ### suggest-only

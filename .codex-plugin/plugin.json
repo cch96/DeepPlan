@@ -1,6 +1,6 @@
 {
   "name": "deepplan",
-  "version": "0.1.0+codex.20260615105021",
+  "version": "0.1.0+codex.20260615111827",
   "description": "Evidence-backed plan convergence before AI agents execute.",
   "author": {
     "name": "DeepPlan Maintainers"
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "DeepPlan",
     "shortDescription": "Evidence-backed plan convergence before execution",
-    "longDescription": "DeepPlan helps agents turn first-draft plans and broad optimization requests into side-effect-free, evidence-backed execution plans by grounding local context, naming material optimization axes, comparing alternatives, critiquing risks, preserving host wrappers, rejecting hidden implementation decisions, returning no-edit plans when repeated optimization lacks a behavior delta, and defining validation gates before implementation starts.",
+    "longDescription": "DeepPlan helps agents turn first-draft plans and broad optimization requests into side-effect-free, evidence-backed execution plans by grounding local context, naming material optimization axes, comparing alternatives, critiquing risks, preserving host wrappers, asking for explicit current-task consent before first suitable subagent use, rejecting hidden implementation decisions, returning no-edit plans when repeated optimization lacks a behavior delta, and defining validation gates before implementation starts.",
     "developerName": "DeepPlan Maintainers",
     "category": "Productivity",
     "capabilities": [],

@@ -41,7 +41,7 @@ the plan, validation, backup, readiness, or handoff.
 
 - **First-pass planning**: 21, 22, 23, 24, 30.
 - **Workflow/process/skill/plugin optimization**: 1, 4, 10, 14, 16, 17, 19,
-  20, 21, 25, 27, 28, 29, 30, 31, 32.
+  20, 21, 25, 27, 28, 29, 30, 31, 32, 34.
 - **Host-wrapper / Plan Mode**: 12, 18, 19.
 - **Plugin refresh / execution handoff**: 13, 20, 26.
 - **Root cause / regression**: 7 plus the relevant domain lens.
@@ -318,3 +318,20 @@ receive normal execution handoff instructions, and lack of `/goal` does not
 lower readiness.
 Failure: Requires `/goal` universally, treats Claude as if it supports Codex
 Goal Mode, or weakens readiness because a non-Codex host lacks `/goal`.
+
+### 34. Session-Scoped Subagent Prompt Must Not Become Durable Authorization
+
+Trigger: A Full-path task has two to four independent read-heavy domains, no
+explicit subagent request, and no managed repository opt-in.
+Expected: On the first suitable use in the current session, ask before spawning
+subagents. The choices are `Use for this task`, `Use now and enable repo`, and
+`Do not use`. `Use for this task` authorizes the current task only. `Use now
+and enable repo` authorizes the current task and adds a post-DeepPlan handoff to
+run `python3 scripts/configure_subagents.py --repo <repo> --mode
+allow-readonly-subagents --write` after leaving planning mode. `Do not use`
+continues with solo critique and does not lower readiness.
+Failure: Spawns subagents before the choice, prompts repeatedly in the same
+session opportunity, writes `AGENTS.md` during DeepPlan, treats repo enablement
+as immediately effective, or treats install, update, cachebuster, or reinstall
+work as subagent authorization. Install/update work does not authorize
+subagents.

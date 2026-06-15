@@ -174,27 +174,48 @@ at least two alternatives before `ready`; otherwise return
   intent/scope, failure modes/reversibility, validation,
   maintainability/operability, and simplicity. Add domain lenses only when
   relevant.
-- If the user explicitly asks for subagents or parallel agent work, or the
-  active repository has a DeepPlan-managed `AGENTS.md` opt-in block that permits
-  the current use, but roles are not named, select 2-4 relevant lens-roles from
-  the critique/domain lenses after grounding. Each selected lens-role needs an
-  independent read-heavy critique scope and output that could change the main plan,
-  backup, switch condition, validation gate, or readiness; use fewer than
-  four when fewer independent domains exist.
+- Subagent precedence is: current "no subagents" user instruction, closer
+  project instructions or `AGENTS.override.md`, current explicit user request or
+  session choice, DeepPlan-managed repository opt-in, then first-use prompt.
+- If the user explicitly asks for subagents or parallel agent work, or permitted
+  current-session or repository consent applies, but roles are not named, select
+  2-4 relevant lens-roles from the critique/domain lenses after grounding. Each
+  selected lens-role needs an independent read-heavy critique scope and output
+  that could change the main plan, backup, switch condition, validation gate, or
+  readiness; use fewer than four when fewer independent domains exist.
 - A DeepPlan-managed `AGENTS.md` block counts as standing user intent only within
   its mode: `suggest-only` may recommend a lineup but must not spawn;
   `allow-readonly-subagents` may spawn direct read-heavy/explorer subagents for
   Full path planning. Current user instructions, closer project instructions, or
   any "no subagents" instruction override the block.
+- When no explicit user request or `allow-readonly-subagents` block applies, the
+  first suitable subagent use is session-scoped: ask once in the current session
+  for the active repository only after grounding confirms Full path, host
+  support, policy permission, no closer "no subagents" rule, and 2+ independent
+  read-heavy evidence domains that could change the main plan, backup, switch
+  condition, validation gate, or readiness. Do not spawn before the user
+  answers. Offer exactly `Use for this task`, `Use now and enable repo`, and
+  `Do not use`. Use the host-supported user-input path; if the host requires an
+  output wrapper, do not emit a second raw block.
+- `Use for this task` is explicit current task only consent and is not
+  persistent. `Use now and enable repo` authorizes the current task and adds an
+  execution handoff after leaving planning mode to run
+  `python3 scripts/configure_subagents.py --repo <repo> --mode
+  allow-readonly-subagents --write`; it does not authorize planning-mode writes
+  or take effect for future sessions until the repo guidance is written and a
+  new session starts. `Do not use` means continue with solo critique for this
+  task/session opportunity and must not lower readiness.
 - Use subagents only when the user explicitly asks for subagents or parallel
-  agent work, or a permitted DeepPlan-managed opt-in block applies, and the host
-  supports them, policy permits them, the plan is Full, and there are 2+
-  independent read-heavy evidence domains. Do not create fake debate roles, pad
-  the count, duplicate reviewers, recurse, use CSV fan-out, or use write-heavy
-  worker subagents while DeepPlan is active. Harvest results, close completed
-  agents, and keep final planning judgment in the parent thread. If subagents
-  are unrequested, unavailable, not Full, or lack independent domains, continue
-  with solo critique; optional subagents must not block or weaken readiness.
+  agent work, a permitted current-session choice applies, or a permitted
+  DeepPlan-managed opt-in block applies, and the host supports them, policy
+  permits them, the plan is Full, and there are 2+ independent read-heavy
+  evidence domains. Install, update, cachebuster, and reinstall actions do not
+  authorize subagents. Do not create fake debate roles, pad the count, duplicate
+  reviewers, recurse, use CSV fan-out, or use write-heavy worker subagents while
+  DeepPlan is active. Harvest results, close completed agents, and keep final
+  planning judgment in the parent thread. If subagents are unrequested,
+  unavailable, not Full, or lack independent domains, continue with solo
+  critique; optional subagents must not block or weaken readiness.
 - For workflow/process/skill/plugin/policy changes, pressure-check only relevant
   scenarios from `references/depth-and-pressure.md`; output only results that
   affect approach, validation, readiness, backup, or switch condition.

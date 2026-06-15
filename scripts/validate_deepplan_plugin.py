@@ -91,6 +91,18 @@ README_ANCHORS: tuple[AnchorSpec, ...] = (
         ),
     ),
     (
+        "README subagent_first_use_prompt",
+        (
+            ("first-use", "first suitable use", "first suitable subagent use"),
+            ("Use for this task",),
+            ("Use now and enable repo",),
+            ("Do not use",),
+            ("solo critique",),
+            ("install", "update", "reinstall"),
+            ("never", "not", "no"),
+        ),
+    ),
+    (
         "README host_specific_goal_handoff",
         (
             ("goal mode", "/goal"),
@@ -108,6 +120,9 @@ DEPENDENCIES_ANCHORS: tuple[AnchorSpec, ...] = (
             ("subagents",),
             ("explicitly asks", "explicit user request"),
             ("DeepPlan-managed",),
+            ("first-use", "first suitable use", "first suitable subagent use"),
+            ("Full",),
+            ("independent read-heavy", "independent critique"),
             ("lenses", "lens-roles", "lens roles"),
             ("solo critique",),
         ),
@@ -254,6 +269,26 @@ SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
         ),
     ),
     (
+        "SKILL subagent_first_use_prompt",
+        "critique",
+        (
+            ("first-use", "first suitable use", "first suitable subagent use"),
+            ("current session", "session-scoped"),
+            ("Use for this task",),
+            ("Use now and enable repo",),
+            ("Do not use",),
+            ("ask", "prompt", "wait"),
+            ("must not spawn", "do not spawn"),
+            ("current task only", "not persistent"),
+            ("configure_subagents.py",),
+            ("allow-readonly-subagents",),
+            ("--write",),
+            ("after leaving planning mode", "execution handoff", "post-DeepPlan"),
+            ("install", "update", "cachebuster", "reinstall"),
+            ("does not authorize", "not authorize", "no auto-authorization"),
+        ),
+    ),
+    (
         "SKILL subagent_negative_guardrails",
         "critique",
         (
@@ -273,7 +308,29 @@ REFERENCE_SCENARIOS = (
     "Discovery Metadata Must Match Skill Behavior",
     "Actionability Gate Must Reject Hidden Decisions",
     "Subagent Lens-Roles Need Explicit Request And Independent Scope",
+    "Session-Scoped Subagent Prompt Must Not Become Durable Authorization",
     "Host-Specific Goal Handoff Stays Optional",
+)
+REFERENCE_SCENARIO_ANCHORS: tuple[tuple[str, tuple[tuple[str, ...], ...]], ...] = (
+    (
+        "Session-Scoped Subagent Prompt Must Not Become Durable Authorization",
+        (
+            ("first-use", "first suitable use", "first suitable subagent use"),
+            ("current session", "session-scoped"),
+            ("Full",),
+            ("independent read-heavy", "independent critique"),
+            ("Use for this task",),
+            ("Use now and enable repo",),
+            ("Do not use",),
+            ("solo critique",),
+            ("configure_subagents.py",),
+            ("allow-readonly-subagents",),
+            ("--write",),
+            ("after leaving planning mode", "post-DeepPlan"),
+            ("install", "update", "cachebuster", "reinstall"),
+            ("does not authorize", "not authorize", "no auto-authorization"),
+        ),
+    ),
 )
 SUBAGENT_OPT_IN_ANCHORS: tuple[AnchorSpec, ...] = (
     (
@@ -326,6 +383,19 @@ SUBAGENT_OPT_IN_ANCHORS: tuple[AnchorSpec, ...] = (
             ("CSV fan-out",),
             ("role padding",),
             ("parent agent",),
+        ),
+    ),
+    (
+        "Subagent opt-in first-use prompt",
+        (
+            ("first-use", "first suitable use", "first suitable subagent use"),
+            ("current session", "session-scoped"),
+            ("Use for this task",),
+            ("Use now and enable repo",),
+            ("Do not use",),
+            ("ephemeral", "current-task"),
+            ("durable",),
+            ("configure_subagents.py",),
         ),
     ),
 )
@@ -588,6 +658,11 @@ def check_configure_subagents_smoke() -> None:
             third,
             "Mode: allow-readonly-subagents",
             "standing explicit request",
+            "read-only/explorer",
+            "does not authorize",
+            "write-heavy",
+            "durable guidance",
+            "not a Codex permission change",
             "read-heavy",
             "sandbox",
             "approval",
@@ -705,6 +780,14 @@ def check_reference_anchors(missing: list[str]) -> None:
             content,
             (scenario,),
         )
+    for scenario, term_groups in REFERENCE_SCENARIO_ANCHORS:
+        section = extract_markdown_heading_section(
+            missing,
+            f"reference scenario body {scenario}",
+            content,
+            f"### {scenario}",
+        )
+        require_anchor(missing, f"reference scenario body {scenario}", section, *term_groups)
     require_anchors(
         missing,
         read_required_text("skills/deepplan/references/subagent-opt-in.md"),
@@ -754,6 +837,36 @@ def extract_required_section(
         missing.append(f"{anchor}: section end {end!r}")
         return content[start_index:]
     return content[start_index:end_index]
+
+
+def extract_markdown_heading_section(
+    missing: list[str],
+    anchor: str,
+    content: str,
+    heading: str,
+) -> str:
+    start_index = content.find(heading)
+    if start_index == -1:
+        title = heading.removeprefix("### ").lower()
+        for line_start, line in iter_markdown_heading_lines(content):
+            if title in line.lower():
+                start_index = line_start
+                break
+        else:
+            missing.append(anchor)
+            return ""
+    next_heading = content.find("\n### ", start_index + len(heading))
+    if next_heading == -1:
+        return content[start_index:]
+    return content[start_index:next_heading]
+
+
+def iter_markdown_heading_lines(content: str):
+    offset = 0
+    for line in content.splitlines(keepends=True):
+        if line.startswith("### "):
+            yield offset, line.strip()
+        offset += len(line)
 
 
 def require_anchor(

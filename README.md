@@ -17,8 +17,9 @@ system.
   them.
 - Adds distinct candidates only when coverage is missing.
 - Critiques risk, validation, reversibility, maintainability, and simplicity.
-- Selects relevant lens-roles for subagents only after an explicit user request
-  and only for independent read-heavy critique domains.
+- Selects relevant lens-roles for subagents only after an explicit user request,
+  a permitted repository opt-in, or a first-use prompt confirms current-task
+  consent for independent read-heavy critique domains.
 - Can add explicit repository `AGENTS.md` opt-in guidance for suggest-only or
   read-only subagent use; install and reinstall never add that guidance by
   themselves.
@@ -51,10 +52,15 @@ web/docs lookup are optional evidence sources only:
 
 - Reuse upstream brainstorming approaches instead of generating duplicate
   candidates.
-- Use subagents only when the user explicitly requests them and the host supports
-  independent read-heavy critique domains, or when the active repository has a
-  DeepPlan-managed `AGENTS.md` opt-in block. If roles are unspecified, choose
-  relevant lens-roles from the critique/domain lenses after grounding.
+- Use subagents only when the user explicitly requests them, the active
+  repository has a DeepPlan-managed `AGENTS.md` opt-in block, or a first-use
+  prompt gets current-task consent after grounding confirms a Full-path task with
+  independent read-heavy critique domains. The prompt choices include
+  `Use for this task`, `Use now and enable repo`, and `Do not use`; unsupported,
+  unanswered, or declined prompts fall back to solo critique.
+- `Use now and enable repo` adds a post-DeepPlan handoff to run
+  `configure_subagents.py --mode allow-readonly-subagents --write`; install,
+  update, and reinstall actions never authorize subagents by themselves.
 - Use official OpenAI/Codex docs only when current external contracts can change
   the plan. If a needed contract remains unverified, lower readiness to
   `ready_with_assumptions` or `not_ready`.
