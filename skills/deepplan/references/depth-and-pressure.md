@@ -41,7 +41,7 @@ the plan, validation, backup, readiness, or handoff.
 
 - **First-pass planning**: 21, 22, 23, 24, 30.
 - **Workflow/process/skill/plugin optimization**: 1, 4, 10, 14, 16, 17, 19,
-  20, 21, 25, 27, 28, 29, 30, 31.
+  20, 21, 25, 27, 28, 29, 30, 31, 32.
 - **Host-wrapper / Plan Mode**: 12, 18, 19.
 - **Plugin refresh / execution handoff**: 13, 20, 26.
 - **Root cause / regression**: 7 plus the relevant domain lens.
@@ -294,3 +294,16 @@ Expected: The main plan is no source edit, with the optimization axis,
 that would reopen source changes.
 Failure: Treats lack of edits as `not_ready`, invents wording changes, or omits
 the evidence that would justify reopening implementation.
+
+### 32. Subagent Lens-Roles Need Explicit Request And Independent Scope
+
+Trigger: "Use DeepPlan with subagents," but the user does not specify roles.
+Expected: If the plan is Full path, the host supports subagents, policy permits
+them, and 2+ independent read-heavy domains exist, select 2-4 lens-roles from
+the critique/domain lenses. Each lens-role has a distinct scope and could change
+the main plan, backup, switch condition, validation gate, or readiness. If
+subagents are not requested, unavailable, not Full, or lack independent domains,
+continue with solo critique; optional subagents do not block readiness.
+Failure: Spawns subagents without explicit request, pads to four roles, creates
+fake debate roles, duplicates reviewers, or weakens readiness because optional
+subagents are unavailable.

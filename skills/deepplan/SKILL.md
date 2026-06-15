@@ -173,10 +173,18 @@ at least two alternatives before `ready`; otherwise return
   intent/scope, failure modes/reversibility, validation,
   maintainability/operability, and simplicity. Add domain lenses only when
   relevant.
+- If the user explicitly asks for subagents or parallel agent work but does not
+  name roles, select 2-4 relevant lens-roles from the critique/domain lenses
+  after grounding. Each selected lens-role needs an independent read-heavy
+  critique scope and output that could change the main plan, backup, switch
+  condition, validation gate, or readiness; use fewer than four when fewer
+  independent domains exist.
 - Use subagents only when the user explicitly asks for subagents or parallel
   agent work, the host supports them, policy permits them, the plan is Full, and
-  there are 2+ independent read-heavy evidence domains. Otherwise continue with
-  solo critique; optional subagents must not block or weaken readiness.
+  there are 2+ independent read-heavy evidence domains. Do not create fake debate
+  roles, pad the count, or duplicate reviewers. If subagents are unrequested,
+  unavailable, not Full, or lack independent domains, continue with solo critique;
+  optional subagents must not block or weaken readiness.
 - For workflow/process/skill/plugin/policy changes, pressure-check only relevant
   scenarios from `references/depth-and-pressure.md`; output only results that
   affect approach, validation, readiness, backup, or switch condition.

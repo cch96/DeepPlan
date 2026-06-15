@@ -17,6 +17,8 @@ system.
   them.
 - Adds distinct candidates only when coverage is missing.
 - Critiques risk, validation, reversibility, maintainability, and simplicity.
+- Selects relevant lens-roles for subagents only after an explicit user request
+  and only for independent read-heavy critique domains.
 - Names the material optimization axis for broad "improve this" requests before
   planning source changes.
 - Returns a no-source-edit plan when repeated optimization has no material
@@ -47,7 +49,8 @@ web/docs lookup are optional evidence sources only:
 - Reuse upstream brainstorming approaches instead of generating duplicate
   candidates.
 - Use subagents only when the user explicitly requests them and the host supports
-  independent read-heavy critique domains.
+  independent read-heavy critique domains. If roles are unspecified, choose
+  relevant lens-roles from the critique/domain lenses after grounding.
 - Use official OpenAI/Codex docs only when current external contracts can change
   the plan. If a needed contract remains unverified, lower readiness to
   `ready_with_assumptions` or `not_ready`.

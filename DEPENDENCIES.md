@@ -8,7 +8,8 @@ DeepPlan has no hard runtime or workflow dependencies.
   and audit coverage instead of duplicating alternatives.
 - Codex or Claude subagents: Use only when the user explicitly asks for
   subagents or parallel agent work, host policy permits it, and the plan has
-  independent read-heavy critique domains.
+  independent read-heavy critique domains. If roles are unspecified, select
+  2-4 relevant lens-roles from the critique/domain lenses after grounding.
 - Official docs or web tools: Use only when current external contracts,
   API/tool behavior, package versions, or explicit lookup requests can change
   the plan.
@@ -22,6 +23,7 @@ DeepPlan has no hard runtime or workflow dependencies.
 - Do not ask for approval solely because optional subagents are available.
 - Do not vendor external workflow skills.
 - Continue with solo critique when optional integrations are unavailable,
-  unrequested, or inappropriate.
+  unrequested, or inappropriate; do not pad lens-roles or create fake debate
+  roles.
 - If an OpenAI/Codex contract matters and cannot be verified through configured
   docs or official OpenAI-domain fallback, lower readiness instead of guessing.

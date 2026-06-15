@@ -72,11 +72,32 @@ README_ANCHORS: tuple[AnchorSpec, ...] = (
             ("execution handoff", "handoff"),
         ),
     ),
+    (
+        "README subagent_lens_roles",
+        (
+            ("subagents",),
+            ("explicitly requests", "explicit user request"),
+            ("lenses", "lens-roles", "lens roles"),
+            ("independent read-heavy", "independent critique"),
+        ),
+    ),
+)
+DEPENDENCIES_ANCHORS: tuple[AnchorSpec, ...] = (
+    (
+        "Dependencies subagent_optional_lens_roles",
+        (
+            ("subagents",),
+            ("explicitly asks", "explicit user request"),
+            ("lenses", "lens-roles", "lens roles"),
+            ("solo critique",),
+        ),
+    ),
 )
 SKILL_SECTIONS: dict[str, SectionSpec] = {
     "boundaries": ("## Boundaries And Evidence", "## Workflow"),
     "grounding": ("Grounding rules:", "Optimization requests:"),
     "optimization": ("Optimization requests:", "## Workflow"),
+    "critique": ("### 4. Critique And Compare", "### 5. Converge And Verify"),
     "converge": ("### 5. Converge And Verify", "### 6. Handoff To Execution"),
     "handoff": ("### 6. Handoff To Execution", "## Output And Readiness"),
 }
@@ -158,12 +179,43 @@ SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
             ("readiness", "ready"),
         ),
     ),
+    (
+        "SKILL subagent_lens_role_selection",
+        "critique",
+        (
+            ("explicitly asks", "explicit user request"),
+            ("subagents", "parallel agent"),
+            ("select", "selected"),
+            ("lenses", "lens-roles", "lens roles"),
+            ("2-4", "two to four"),
+            ("independent read-heavy", "independent critique"),
+            ("main plan",),
+            ("backup",),
+            ("switch condition",),
+            ("validation",),
+            ("readiness",),
+        ),
+    ),
+    (
+        "SKILL subagent_negative_guardrails",
+        "critique",
+        (
+            ("not request", "not requested", "unrequested"),
+            ("solo critique",),
+            ("optional subagents",),
+            ("block", "weaken"),
+            ("fake debate",),
+            ("padding", "pad"),
+            ("duplicate",),
+        ),
+    ),
 )
 REFERENCE_SCENARIOS = (
     "Repeated Optimization Loops Need A Behavior Delta",
     "No-Edit Optimization Can Be Ready",
     "Discovery Metadata Must Match Skill Behavior",
     "Actionability Gate Must Reject Hidden Decisions",
+    "Subagent Lens-Roles Need Explicit Request And Independent Scope",
 )
 CODEX_PROMPT_ANCHORS: tuple[AnchorSpec, ...] = (
     (
@@ -302,6 +354,7 @@ def check_plugin_structure() -> None:
 def check_behavior_anchors() -> None:
     missing: list[str] = []
     check_readme_anchors(missing)
+    check_dependencies_anchors(missing)
     check_skill_anchors(missing)
     check_reference_anchors(missing)
     check_prompt_intent_anchors(missing)
@@ -314,6 +367,11 @@ def check_behavior_anchors() -> None:
 def check_readme_anchors(missing: list[str]) -> None:
     content = read_required_text("README.md")
     require_anchors(missing, content, README_ANCHORS)
+
+
+def check_dependencies_anchors(missing: list[str]) -> None:
+    content = read_required_text("DEPENDENCIES.md")
+    require_anchors(missing, content, DEPENDENCIES_ANCHORS)
 
 
 def check_skill_anchors(missing: list[str]) -> None:
