@@ -6,12 +6,10 @@ DeepPlan has no hard runtime or workflow dependencies.
 
 - Superpowers: Reuse upstream 2-3 approach brainstorming as the candidate pool
   and audit coverage instead of duplicating alternatives.
-- Codex or Claude subagents: Use only when the user explicitly asks for
-  subagents or parallel agent work, or when the active repository contains a
-  DeepPlan-managed `AGENTS.md` opt-in block. Host policy must permit subagents,
-  and the plan must have independent read-heavy critique domains. If roles are
-  unspecified, select 2-4 relevant lens-roles from the critique/domain lenses
-  after grounding.
+- Codex or Claude subagents: optional, read-only critique help on explicit user
+  request or a managed `AGENTS.md` opt-in with independent read-heavy domains.
+  Full modes, precedence, and limits in
+  `skills/deepplan/references/subagent-opt-in.md`.
 - Official docs or web tools: Use only when current external contracts,
   API/tool behavior, package versions, or explicit lookup requests can change
   the plan.

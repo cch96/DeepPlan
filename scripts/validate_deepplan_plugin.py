@@ -29,7 +29,7 @@ CLAUDE_REQUIRED_STRINGS = {
 }
 AnchorSpec = tuple[str, tuple[tuple[str, ...], ...]]
 SectionAnchorSpec = tuple[str, str, tuple[tuple[str, ...], ...]]
-SectionSpec = tuple[str, str]
+SectionSpec = str
 README_ANCHORS: tuple[AnchorSpec, ...] = (
     (
         "README optimization_axis",
@@ -72,12 +72,10 @@ README_ANCHORS: tuple[AnchorSpec, ...] = (
         ),
     ),
     (
-        "README subagent_lens_roles",
+        "README subagent_pointer",
         (
             ("subagents",),
-            ("explicitly requests", "explicit user request"),
-            ("lenses", "lens-roles", "lens roles"),
-            ("independent read-heavy", "independent critique"),
+            ("subagent-opt-in",),
         ),
     ),
     (
@@ -103,13 +101,10 @@ README_ANCHORS: tuple[AnchorSpec, ...] = (
 )
 DEPENDENCIES_ANCHORS: tuple[AnchorSpec, ...] = (
     (
-        "Dependencies subagent_optional_lens_roles",
+        "Dependencies subagent_pointer",
         (
             ("subagents",),
-            ("explicitly asks", "explicit user request"),
-            ("DeepPlan-managed",),
-            ("lenses", "lens-roles", "lens roles"),
-            ("solo critique",),
+            ("subagent-opt-in",),
         ),
     ),
     (
@@ -123,12 +118,12 @@ DEPENDENCIES_ANCHORS: tuple[AnchorSpec, ...] = (
     ),
 )
 SKILL_SECTIONS: dict[str, SectionSpec] = {
-    "boundaries": ("## Boundaries And Evidence", "## Workflow"),
-    "grounding": ("Grounding rules:", "Optimization requests:"),
-    "optimization": ("Optimization requests:", "## Workflow"),
-    "critique": ("### 4. Critique And Compare", "### 5. Converge And Verify"),
-    "converge": ("### 5. Converge And Verify", "### 6. Handoff To Execution"),
-    "handoff": ("### 6. Handoff To Execution", "## Output And Readiness"),
+    "boundaries": "## Boundaries And Evidence",
+    "grounding": "### Grounding Rules",
+    "optimization": "### Optimization Requests",
+    "critique": "### 4. Critique And Compare",
+    "converge": "### 5. Converge And Verify",
+    "handoff": "### 6. Handoff To Execution",
 }
 SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
     (
@@ -166,37 +161,22 @@ SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
         ),
     ),
     (
-        "SKILL host_wrapper_boundary",
+        "SKILL host_wrapper_principle",
         "boundaries",
         (
             ("wrapper",),
-            ("<proposed_plan>",),
             ("single",),
             ("second raw block", "second block"),
         ),
     ),
     (
-        "SKILL plugin_refresh_handoff",
+        "SKILL handoff_principle",
         "handoff",
         (
-            ("cachebuster",),
-            ("reinstall",),
-            ("marketplace",),
-            ("hand-edit",),
+            ("readiness",),
+            ("approval", "external", "durable"),
             ("thread/session", "new thread", "new session"),
-        ),
-    ),
-    (
-        "SKILL host_specific_goal_handoff",
-        "handoff",
-        (
-            ("goal mode", "/goal"),
-            ("codex",),
-            ("claude", "non-codex", "non codex"),
-            ("optional", "host-specific", "host specific"),
-            ("completion criteria", "acceptance criteria"),
-            ("validation",),
-            ("do not require", "must not require", "not require"),
+            ("host-integration",),
         ),
     ),
     (
@@ -217,53 +197,18 @@ SKILL_ANCHORS: tuple[SectionAnchorSpec, ...] = (
             ("websearch",),
             ("official",),
             ("primary sources", "primary source"),
-            ("openai",),
             ("readiness", "ready"),
         ),
     ),
     (
-        "SKILL subagent_lens_role_selection",
+        "SKILL subagent_decision_rule",
         "critique",
         (
-            ("explicitly asks", "explicit user request"),
-            ("DeepPlan-managed",),
             ("subagents", "parallel agent"),
-            ("select", "selected"),
-            ("lenses", "lens-roles", "lens roles"),
-            ("2-4", "two to four"),
-            ("independent read-heavy", "independent critique"),
-            ("main plan",),
-            ("backup",),
-            ("switch condition",),
-            ("validation",),
-            ("readiness",),
-        ),
-    ),
-    (
-        "SKILL subagent_opt_in_modes",
-        "critique",
-        (
-            ("suggest-only",),
-            ("must not spawn",),
-            ("allow-readonly-subagents",),
-            ("read-heavy",),
-            ("explorer",),
-            ("no subagents",),
-            ("write-heavy",),
-            ("parent thread",),
-        ),
-    ),
-    (
-        "SKILL subagent_negative_guardrails",
-        "critique",
-        (
-            ("not request", "not requested", "unrequested"),
-            ("solo critique",),
-            ("optional subagents",),
-            ("block", "weaken"),
-            ("fake debate",),
-            ("padding", "pad"),
-            ("duplicate",),
+            ("explicit", "request", "opt-in"),
+            ("independent",),
+            ("solo",),
+            ("subagent-opt-in",),
         ),
     ),
 )
@@ -274,6 +219,19 @@ REFERENCE_SCENARIOS = (
     "Actionability Gate Must Reject Hidden Decisions",
     "Subagent Lens-Roles Need Explicit Request And Independent Scope",
     "Host-Specific Goal Handoff Stays Optional",
+)
+DEPTH_AND_PRESSURE_ANCHORS: tuple[AnchorSpec, ...] = (
+    (
+        "Depth self_optimization_classification",
+        (
+            ("self-optimization classification",),
+            ("new_behavior_gap",),
+            ("validation_gap",),
+            ("metadata_drift",),
+            ("no_material_delta",),
+            ("behavior delta",),
+        ),
+    ),
 )
 SUBAGENT_OPT_IN_ANCHORS: tuple[AnchorSpec, ...] = (
     (
@@ -371,6 +329,47 @@ OPENAI_PROMPT_ANCHORS: tuple[AnchorSpec, ...] = (
         ),
     ),
 )
+HOST_INTEGRATION_ANCHORS: tuple[AnchorSpec, ...] = (
+    (
+        "Host wrapper",
+        (
+            ("wrapper",),
+            ("<proposed_plan>",),
+            ("single",),
+            ("second raw block", "second block"),
+        ),
+    ),
+    (
+        "Host goal handoff",
+        (
+            ("goal mode", "/goal"),
+            ("codex",),
+            ("claude", "non-codex", "non codex"),
+            ("optional", "host-specific", "host specific"),
+            ("completion criteria", "acceptance criteria"),
+            ("validation",),
+            ("do not require", "must not require", "not require"),
+        ),
+    ),
+    (
+        "Host external contracts",
+        (
+            ("openai",),
+            ("docs", "primary source", "official"),
+            ("ready_with_assumptions", "not_ready", "lower readiness"),
+        ),
+    ),
+    (
+        "Host plugin refresh",
+        (
+            ("cachebuster",),
+            ("reinstall",),
+            ("marketplace",),
+            ("hand-edit",),
+            ("thread/session", "new thread", "new session"),
+        ),
+    ),
+)
 
 
 def main() -> int:
@@ -382,6 +381,7 @@ def main() -> int:
         check_subagent_opt_in_artifacts,
         check_configure_subagents_smoke,
         check_behavior_anchors,
+        check_skill_portability,
         check_no_stale_local_paths,
         check_git_diff,
     )
@@ -669,6 +669,7 @@ def check_behavior_anchors() -> None:
     check_dependencies_anchors(missing)
     check_skill_anchors(missing)
     check_reference_anchors(missing)
+    check_host_integration_anchors(missing)
     check_prompt_intent_anchors(missing)
 
     if missing:
@@ -689,8 +690,8 @@ def check_dependencies_anchors(missing: list[str]) -> None:
 def check_skill_anchors(missing: list[str]) -> None:
     content = read_required_text("skills/deepplan/SKILL.md")
     sections = {
-        name: extract_required_section(missing, f"SKILL {name}", content, *bounds)
-        for name, bounds in SKILL_SECTIONS.items()
+        name: extract_required_section(missing, f"SKILL {name}", content, heading)
+        for name, heading in SKILL_SECTIONS.items()
     }
     for anchor, section_name, term_groups in SKILL_ANCHORS:
         require_anchor(missing, anchor, sections[section_name], *term_groups)
@@ -705,10 +706,19 @@ def check_reference_anchors(missing: list[str]) -> None:
             content,
             (scenario,),
         )
+    require_anchors(missing, content, DEPTH_AND_PRESSURE_ANCHORS)
     require_anchors(
         missing,
         read_required_text("skills/deepplan/references/subagent-opt-in.md"),
         SUBAGENT_OPT_IN_ANCHORS,
+    )
+
+
+def check_host_integration_anchors(missing: list[str]) -> None:
+    require_anchors(
+        missing,
+        read_required_text("skills/deepplan/references/host-integration.md"),
+        HOST_INTEGRATION_ANCHORS,
     )
 
 
@@ -735,25 +745,84 @@ def check_no_stale_local_paths() -> None:
     print("OK no stale local paths")
 
 
+SKILL_HOST_ONLY_TOKENS = (
+    "$deepplan",
+    "/goal",
+    "<proposed_plan>",
+    "cachebuster",
+    "marketplace",
+    "reinstall",
+)
+
+
+def check_skill_portability() -> None:
+    """The SKILL.md spine must stay host-agnostic: a host-specific token may appear
+    only on a line that also points to references/host-integration.md."""
+    content = read_required_text("skills/deepplan/SKILL.md")
+    offenders: list[str] = []
+    for lineno, line in enumerate(content.splitlines(), start=1):
+        lowered = line.lower()
+        if "host-integration" in lowered:
+            continue
+        for token in SKILL_HOST_ONLY_TOKENS:
+            if token in lowered:
+                offenders.append(f"line {lineno}: {token!r}")
+    if offenders:
+        raise ValidationError(
+            "SKILL.md spine must be host-agnostic; move host-specific mechanics to "
+            "references/host-integration.md (offending tokens: "
+            + "; ".join(offenders)
+            + ")"
+        )
+    print("OK skill portability")
+
+
+def heading_level(line: str) -> int:
+    stripped = line.lstrip()
+    hashes = len(stripped) - len(stripped.lstrip("#"))
+    if hashes < 1 or hashes > 6 or not stripped[hashes:].startswith(" "):
+        return 0
+    return hashes
+
+
 def extract_required_section(
     missing: list[str],
     anchor: str,
     content: str,
-    start: str,
-    end: str,
+    heading: str,
 ) -> str:
-    lower_content = content.lower()
-    lower_start = start.lower()
-    start_index = lower_content.find(lower_start)
-    if start_index == -1:
-        missing.append(f"{anchor}: section start {start!r}")
+    """Return a markdown section: its heading down to the next heading of
+    equal-or-higher level. Heading-aware (not first-occurrence substring), so
+    rewording or moving prose inside a section does not break validation."""
+    target = heading.strip().lower()
+    target_level = heading_level(heading)
+    lines = content.splitlines(keepends=True)
+
+    start_line = -1
+    in_fence = False
+    for index, line in enumerate(lines):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence and heading_level(line) and line.strip().lower() == target:
+            start_line = index
+            break
+    if start_line == -1:
+        missing.append(f"{anchor}: section heading {heading!r}")
         return ""
 
-    end_index = lower_content.find(end.lower(), start_index + len(lower_start))
-    if end_index == -1:
-        missing.append(f"{anchor}: section end {end!r}")
-        return content[start_index:]
-    return content[start_index:end_index]
+    collected = [lines[start_line]]
+    in_fence = False
+    for line in lines[start_line + 1:]:
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            collected.append(line)
+            continue
+        level = 0 if in_fence else heading_level(line)
+        if level and level <= target_level:
+            break
+        collected.append(line)
+    return "".join(collected)
 
 
 def require_anchor(

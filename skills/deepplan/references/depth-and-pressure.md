@@ -32,6 +32,28 @@ Prefer fewer slices when validation is cheap and rollback is easy. Split more
 when failure leaves durable state, burns money/time, blocks operators, or makes
 later evidence ambiguous.
 
+## Self-Optimization Classification
+
+When optimizing a workflow, skill, plugin, or policy again, ground first (inspect
+recent diffs/commits or prior review notes when available), then classify the
+requested delta before planning any source edit:
+
+- `new_behavior_gap`: a real future-behavior need is unmet (missing trigger,
+  boundary, or rule). Justifies a source edit.
+- `validation_gap`: behavior is right but unverified or under-tested. Justifies a
+  source edit, often validation-only.
+- `metadata_drift`: discovery surfaces (frontmatter, manifest/default prompts,
+  agent metadata, README) steer users toward stale behavior. Justifies a source
+  edit to those surfaces.
+- `no_material_delta`: none of the above holds. Return a no-source-edit plan with
+  concrete validation and the evidence that would reopen source changes; do not
+  invent wording changes.
+
+A behavior delta is required for any source edit. Do not edit for explanation-only,
+style-only, local-path-specific, or current-thread-only reasons unless they alter
+future behavior, readiness, validation, handoff boundaries, metadata discovery, or
+pressure-scenario outcomes.
+
 ## Pressure Scenarios
 
 Each scenario is a documentation test. Select the smallest set that can change

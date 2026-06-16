@@ -17,11 +17,9 @@ system.
   them.
 - Adds distinct candidates only when coverage is missing.
 - Critiques risk, validation, reversibility, maintainability, and simplicity.
-- Selects relevant lens-roles for subagents only after an explicit user request
-  and only for independent read-heavy critique domains.
-- Can add explicit repository `AGENTS.md` opt-in guidance for suggest-only or
-  read-only subagent use; install and reinstall never add that guidance by
-  themselves.
+- Uses subagents only on explicit user request or a managed `AGENTS.md` opt-in,
+  and only for independent read-heavy critique domains (see
+  `skills/deepplan/references/subagent-opt-in.md`).
 - Names the material optimization axis for broad "improve this" requests before
   planning source changes.
 - Returns a no-source-edit plan when repeated optimization has no material
@@ -51,10 +49,9 @@ web/docs lookup are optional evidence sources only:
 
 - Reuse upstream brainstorming approaches instead of generating duplicate
   candidates.
-- Use subagents only when the user explicitly requests them and the host supports
-  independent read-heavy critique domains, or when the active repository has a
-  DeepPlan-managed `AGENTS.md` opt-in block. If roles are unspecified, choose
-  relevant lens-roles from the critique/domain lenses after grounding.
+- Subagents: optional, read-only critique help on explicit request or a managed
+  `AGENTS.md` opt-in. Full modes, precedence, and limits in
+  `skills/deepplan/references/subagent-opt-in.md`.
 - Use official OpenAI/Codex docs only when current external contracts can change
   the plan. If a needed contract remains unverified, lower readiness to
   `ready_with_assumptions` or `not_ready`.
@@ -113,6 +110,7 @@ skills/deepplan/
   SKILL.md
   agents/openai.yaml
   references/depth-and-pressure.md
+  references/host-integration.md
   references/subagent-opt-in.md
 ```
 
