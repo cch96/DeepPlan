@@ -41,10 +41,20 @@ use Light and keep the output short.
 
 Depth scales by blast radius and irreversibility, not apparent task size.
 
-| | Light path | Full path |
-|---|---|---|
-| Use when | small scope, clear facts, obvious validation, and no public-API / schema / data / deploy / durable-state risk; no deep/no-omissions/converged request | any high risk, or two medium risks across uncertainty / blast radius / irreversibility / validation difficulty / failure cost / dependency-chain length; an explicit deep/no-omissions/converged request; DeepPlan self-review; a nontrivial workflow/skill/plugin/policy change; host-wrapper or external-contract risk; a first-pass plan where a missed assumption could invalidate it |
-| Output ends with | one validation gate + the next inspection if it fails | exactly one main plan + one backup + a switch condition + a validation gate |
+**Light path** — use when scope is small, facts are clear, validation is
+obvious, there is no public-API / schema / data / deploy / durable-state risk,
+and there is no deep/no-omissions/converged request. Output ends with one
+validation gate plus the next inspection if it fails.
+
+**Full path** — use when any one of these holds; output ends with exactly one
+main plan, one backup, a switch condition, and a validation gate:
+- any high risk, or two medium risks across uncertainty / blast radius /
+  irreversibility / validation difficulty / failure cost / dependency-chain
+  length;
+- an explicit deep / no-omissions / converged request, or DeepPlan self-review;
+- a nontrivial workflow / skill / plugin / policy change;
+- host-wrapper or external-contract risk;
+- a first-pass plan where a missed assumption could invalidate it.
 
 Upgrade from Light to Full when evidence exposes a gap, a candidate category,
 medium/high risk, unclear validation, or a long dependency chain.

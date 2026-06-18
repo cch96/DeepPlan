@@ -7,6 +7,9 @@ with validation before implementation starts.
 DeepPlan is not an execution framework, project manager, or durable state
 system.
 
+`skills/deepplan/SKILL.md` is the authoritative spec; this README is a summary
+that points to it and to `skills/deepplan/references/` for detail.
+
 ## What It Does
 
 - Grounds plans in local code, docs, tests, logs, manifests, and user
@@ -44,20 +47,13 @@ or failures with verified root cause and an obvious patch.
 
 ## Optional Integrations
 
-DeepPlan has no hard dependencies. Superpowers, subagents, OpenAI Docs MCP, and
-web/docs lookup are optional evidence sources only:
-
-- Reuse upstream brainstorming approaches instead of generating duplicate
-  candidates.
-- Subagents: optional, read-only critique help on explicit request or a managed
-  `AGENTS.md` opt-in. Full modes, precedence, and limits in
-  `skills/deepplan/references/subagent-opt-in.md`.
-- Use official OpenAI/Codex docs only when current external contracts can change
-  the plan. If a needed contract remains unverified, lower readiness to
-  `ready_with_assumptions` or `not_ready`.
-- Codex Goal Mode (`/goal`) is an optional host-specific execution handoff for
-  long tasks with clear completion criteria and validation. Claude and
-  non-Codex hosts receive the same handoff as plain instructions.
+DeepPlan has no hard dependencies. Superpowers, subagents, the OpenAI Docs MCP,
+web/docs lookup, and Codex Goal Mode (`/goal`) are optional evidence and
+host-specific handoff sources only — never required, and their absence never
+lowers readiness. Goal Mode is Codex-only; Claude and non-Codex hosts get the
+same handoff as plain instructions. See `DEPENDENCIES.md` for the full policy
+and `skills/deepplan/references/subagent-opt-in.md` / `host-integration.md` for
+subagent modes and host-integration detail.
 
 ## Usage
 
