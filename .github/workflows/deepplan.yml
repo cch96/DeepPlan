@@ -19,12 +19,15 @@ jobs:
         # Fails if any scenario is malformed/dropped (eval prints a WARNING to
         # stderr) or the count is wrong. Keeps depth-and-pressure.md parseable.
         run: python3 scripts/eval_scenarios.py --dry-run
-      # NOTE: scripts/validate_deepplan_plugin.py is intentionally NOT run here
-      # yet. Its check_plugin_structure step shells out to the external
-      # plugin-creator validator ($DEEPPLAN_PLUGIN_VALIDATOR or
-      # $CODEX_HOME/skills/.system/plugin-creator/scripts/validate_plugin.py),
-      # which is absent on a stock runner. Run it locally / pre-release, or make
-      # that one check optional, before wiring the full validator in here.
+      - name: Install maintenance deps
+        run: python3 -m pip install --quiet pyyaml
+      - name: Validate plugin maintenance contract
+        # The external plugin-creator structure check auto-skips when that tool
+        # is absent (set DEEPPLAN_REQUIRE_PLUGIN_STRUCTURE=1 to enforce). Every
+        # other check runs here: manifests, cross-manifest consistency, behavior
+        # anchors, skill portability, stale paths, and the configure_subagents
+        # smoke test.
+        run: python3 scripts/validate_deepplan_plugin.py
 
   behavioral-eval:
     # RED/GREEN behavioral eval of the skill text. Needs ANTHROPIC_API_KEY;

@@ -376,6 +376,7 @@ def main() -> int:
     checks = (
         check_json_manifests,
         check_claude_manifest_contract,
+        check_manifest_consistency,
         check_agent_yaml,
         check_plugin_structure,
         check_subagent_opt_in_artifacts,
@@ -443,6 +444,53 @@ def check_claude_manifest_contract() -> None:
     print("OK claude manifest contract")
 
 
+def read_openai_yaml() -> dict:
+    try:
+        import yaml
+    except ImportError as exc:
+        raise ValidationError("PyYAML is required for maintenance validation") from exc
+    data = yaml.safe_load(read_required_text("skills/deepplan/agents/openai.yaml"))
+    if not isinstance(data, dict):
+        raise ValidationError("skills/deepplan/agents/openai.yaml must be a mapping")
+    return data
+
+
+def check_manifest_consistency() -> None:
+    """Cross-manifest facts must agree. The Codex and Claude manifests share
+    name + description; the human-facing display name is identical across the
+    Codex, Claude, and OpenAI surfaces. Catches updating one surface and
+    forgetting the others -- drift that the keyword anchors cannot see."""
+    claude = read_required_json(".claude-plugin/plugin.json")
+    codex = read_required_json(".codex-plugin/plugin.json")
+    openai = read_openai_yaml()
+
+    errors = []
+    if claude.get("name") != codex.get("name"):
+        errors.append(
+            f"name differs: .claude-plugin {claude.get('name')!r} vs "
+            f".codex-plugin {codex.get('name')!r}"
+        )
+    if claude.get("description") != codex.get("description"):
+        errors.append(
+            "description differs between .claude-plugin and .codex-plugin manifests"
+        )
+
+    claude_display = claude.get("displayName")
+    codex_display = (codex.get("interface") or {}).get("displayName")
+    openai_display = (openai.get("interface") or {}).get("display_name")
+    displays = {claude_display, codex_display, openai_display}
+    if None in displays or len(displays) != 1:
+        errors.append(
+            "display name differs across manifests: "
+            f".claude-plugin {claude_display!r}, .codex-plugin {codex_display!r}, "
+            f"openai.yaml {openai_display!r}"
+        )
+
+    if errors:
+        raise ValidationError("; ".join(errors))
+    print("OK manifest consistency")
+
+
 def check_agent_yaml() -> None:
     try:
         import yaml
@@ -461,11 +509,24 @@ def check_agent_yaml() -> None:
 
 def check_plugin_structure() -> None:
     plugin_validator = find_plugin_validator()
+    if plugin_validator is None:
+        if os.environ.get("DEEPPLAN_REQUIRE_PLUGIN_STRUCTURE"):
+            raise ValidationError(
+                "plugin-creator validator not found; set DEEPPLAN_PLUGIN_VALIDATOR "
+                "or install plugin-creator under "
+                "$CODEX_HOME/skills/.system/plugin-creator "
+                "(required because DEEPPLAN_REQUIRE_PLUGIN_STRUCTURE is set)"
+            )
+        print(
+            "SKIP plugin structure (plugin-creator validator not found; set "
+            "DEEPPLAN_PLUGIN_VALIDATOR, or DEEPPLAN_REQUIRE_PLUGIN_STRUCTURE=1 to enforce)"
+        )
+        return
     run((sys.executable, str(plugin_validator), str(ROOT)))
     print("OK plugin structure")
 
 
-def find_plugin_validator() -> Path:
+def find_plugin_validator() -> Path | None:
     override = os.environ.get("DEEPPLAN_PLUGIN_VALIDATOR")
     if override:
         path = Path(override).expanduser()
@@ -477,10 +538,7 @@ def find_plugin_validator() -> Path:
     path = codex_home / "skills/.system/plugin-creator/scripts/validate_plugin.py"
     if path.is_file():
         return path
-    raise ValidationError(
-        "missing plugin validator; set DEEPPLAN_PLUGIN_VALIDATOR or install "
-        "plugin-creator under $CODEX_HOME/skills/.system/plugin-creator"
-    )
+    return None
 
 
 def check_subagent_opt_in_artifacts() -> None:

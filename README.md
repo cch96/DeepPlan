@@ -17,9 +17,9 @@ system.
   them.
 - Adds distinct candidates only when coverage is missing.
 - Critiques risk, validation, reversibility, maintainability, and simplicity.
-- Uses subagents only on explicit user request or a managed `AGENTS.md` opt-in,
-  and only for independent read-heavy critique domains (see
-  `skills/deepplan/references/subagent-opt-in.md`).
+- Uses subagents only on Full-path reviews with two or more independent
+  read-heavy critique domains, and only on explicit user request or a managed
+  `AGENTS.md` opt-in (see `skills/deepplan/references/subagent-opt-in.md`).
 - Names the material optimization axis for broad "improve this" requests before
   planning source changes.
 - Returns a no-source-edit plan when repeated optimization has no material
