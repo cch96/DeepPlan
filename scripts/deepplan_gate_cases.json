@@ -1,5 +1,11 @@
 {
-  "_comment": "Per-scenario pass-rate floors read by scripts/eval_scenarios.py (load_scenario_floors -> abstract_eval.per_scenario_floor). A floor blocks the eval (exit 1) when that scenario's pass-rate drops below it, independent of the overall mean. WHY THIS FILE EXISTS: without it, floor enforcement is silently disabled. THESE ARE INITIAL VALUES, NOT CALIBRATED. They were set without a real eval run (needs the 'anthropic' package + ANTHROPIC_API_KEY, unavailable when authored). After the first full baseline run (e.g. `python3 scripts/eval_scenarios.py --runs 5`), set each floor from observed pass-rates and raise the hard-contract scenarios toward 1.0 once confirmed they pass 3/3 under `--runs 3`.",
+  "_comment": "Per-scenario pass-rate floors read by scripts/eval_scenarios.py (load_scenario_floors -> abstract_eval.per_scenario_floor). A floor blocks the eval (exit 1) when that scenario's pass-rate drops below it, independent of the overall mean; without this file, floor enforcement is silently disabled. Floors are set conservatively at 0.67 (= 2/3 under a CI --runs 3): low enough not to flake on one bad sample, high enough to catch a scenario that genuinely regresses to <=1/3. To tighten (e.g. raise the hard-contract scenarios 28-33 toward 1.0), take a multi-sample rate first (`python3 scripts/eval_scenarios.py --runs 5`) and set each floor from the observed rate.",
+  "_calibration": {
+    "method": "keyless Claude Code run of the de-leaked eval (planner=sonnet, judge=opus); scenario answer-keys withheld from the planner",
+    "samples_per_scenario": 1,
+    "result": "9/9 listed scenarios PASS",
+    "floor_basis": "conservative 0.67 (2/3 under CI --runs 3); not a measured rate -- one sample only"
+  },
   "_scenarios": {
     "1": "Self-Review Must Not Use Light Path",
     "2": "Light Path Must Escalate",
