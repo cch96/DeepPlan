@@ -1,0 +1,55 @@
+name: DeepPlan checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  deterministic:
+    # No secrets, no model calls — runs on every push and PR (incl. forks).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Byte-compile scripts
+        run: python3 -m compileall -q scripts
+      - name: Scenario parser sanity (no API key needed)
+        # Fails if any scenario is malformed/dropped (eval prints a WARNING to
+        # stderr) or the count is wrong. Keeps depth-and-pressure.md parseable.
+        run: python3 scripts/eval_scenarios.py --dry-run
+      # NOTE: scripts/validate_deepplan_plugin.py is intentionally NOT run here
+      # yet. Its check_plugin_structure step shells out to the external
+      # plugin-creator validator ($DEEPPLAN_PLUGIN_VALIDATOR or
+      # $CODEX_HOME/skills/.system/plugin-creator/scripts/validate_plugin.py),
+      # which is absent on a stock runner. Run it locally / pre-release, or make
+      # that one check optional, before wiring the full validator in here.
+
+  behavioral-eval:
+    # RED/GREEN behavioral eval of the skill text. Needs ANTHROPIC_API_KEY;
+    # gated to pushes (where the secret is available) and skipped cleanly when
+    # the secret is absent. Per-scenario floors (scripts/deepplan_gate_cases.json)
+    # gate this job — NOT the mean pass-rate (--threshold 0 disables the mean).
+    # Full 33-scenario sweeps belong in a separate scheduled workflow.
+    runs-on: ubuntu-latest
+    needs: deterministic
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Run core pressure scenarios (3 samples each)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "ANTHROPIC_API_KEY not set — skipping behavioral eval."
+            exit 0
+          fi
+          python3 -m pip install --quiet anthropic
+          python3 scripts/eval_scenarios.py \
+            --scenarios 1,2,11,28,29,30,31,32,33 \
+            --runs 3 \
+            --threshold 0

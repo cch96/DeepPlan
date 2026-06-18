@@ -1,0 +1,27 @@
+{
+  "_comment": "Per-scenario pass-rate floors read by scripts/eval_scenarios.py (load_scenario_floors -> abstract_eval.per_scenario_floor). A floor blocks the eval (exit 1) when that scenario's pass-rate drops below it, independent of the overall mean. WHY THIS FILE EXISTS: without it, floor enforcement is silently disabled. THESE ARE INITIAL VALUES, NOT CALIBRATED. They were set without a real eval run (needs the 'anthropic' package + ANTHROPIC_API_KEY, unavailable when authored). After the first full baseline run (e.g. `python3 scripts/eval_scenarios.py --runs 5`), set each floor from observed pass-rates and raise the hard-contract scenarios toward 1.0 once confirmed they pass 3/3 under `--runs 3`.",
+  "_scenarios": {
+    "1": "Self-Review Must Not Use Light Path",
+    "2": "Light Path Must Escalate",
+    "11": "Readiness Must Match Evidence",
+    "28": "Repeated Optimization Loops Need A Behavior Delta",
+    "29": "Discovery Metadata Must Match Skill Behavior",
+    "30": "Actionability Gate Must Reject Hidden Decisions",
+    "31": "No-Edit Optimization Can Be Ready",
+    "32": "Subagent Lens-Roles Need Explicit Request And Independent Scope",
+    "33": "Host-Specific Goal Handoff Stays Optional"
+  },
+  "abstract_eval": {
+    "per_scenario_floor": {
+      "1": 0.67,
+      "2": 0.67,
+      "11": 0.67,
+      "28": 0.67,
+      "29": 0.67,
+      "30": 0.67,
+      "31": 0.67,
+      "32": 0.67,
+      "33": 0.67
+    }
+  }
+}
