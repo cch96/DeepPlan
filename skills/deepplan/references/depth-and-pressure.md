@@ -71,6 +71,7 @@ the plan, validation, backup, readiness, or handoff.
   lens.
 - **Host-specific long-running handoff**: 33.
 - **Small or trivial work**: 2, 9.
+- **Generally applicable (any path)**: 3, 6, 8, 11, 15.
 
 ### 1. Self-Review Must Not Use Light Path
 

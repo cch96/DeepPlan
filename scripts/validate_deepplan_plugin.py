@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -486,6 +487,14 @@ def check_manifest_consistency() -> None:
             f"openai.yaml {openai_display!r}"
         )
 
+    claude_base = str(claude.get("version", "")).split("+", 1)[0]
+    codex_base = str(codex.get("version", "")).split("+", 1)[0]
+    if not claude_base or claude_base != codex_base:
+        errors.append(
+            "base version differs (ignoring +build metadata): "
+            f".claude-plugin {claude_base!r} vs .codex-plugin {codex_base!r}"
+        )
+
     if errors:
         raise ValidationError("; ".join(errors))
     print("OK manifest consistency")
@@ -785,20 +794,33 @@ def check_prompt_intent_anchors(missing: list[str]) -> None:
     require_anchors(missing, read_openai_default_prompt_text(), OPENAI_PROMPT_ANCHORS)
 
 
+# Positive rule: published docs must not hardcode an absolute home directory or
+# the old local marketplace name. Scans the doc surface only -- not this
+# validator's own source, which is what used to force the "/" + "home/ubuntu"
+# self-exemption hack.
+STALE_HOME_RE = re.compile(r"/home/[\w.-]+")
+STALE_MARKETPLACE = "deepplan-local"
+STALE_PATH_DOCS = (
+    "README.md",
+    "DEPENDENCIES.md",
+    "skills/deepplan/SKILL.md",
+    "skills/deepplan/references/depth-and-pressure.md",
+    "skills/deepplan/references/host-integration.md",
+    "skills/deepplan/references/subagent-opt-in.md",
+)
+
+
 def check_no_stale_local_paths() -> None:
-    stale_home = "/" + "home/ubuntu"
-    stale_marketplace = "deepplan" + "-local"
-    for relative_path in (
-        "README.md",
-        "DEPENDENCIES.md",
-        "scripts/validate_deepplan_plugin.py",
-    ):
+    for relative_path in STALE_PATH_DOCS:
         content = read_required_text(relative_path)
-        if stale_home in content:
-            raise ValidationError(f"{relative_path} contains stale {stale_home} path")
-        if stale_marketplace in content:
+        match = STALE_HOME_RE.search(content)
+        if match:
             raise ValidationError(
-                f"{relative_path} contains stale {stale_marketplace} marketplace"
+                f"{relative_path} hardcodes an absolute home path: {match.group(0)!r}"
+            )
+        if STALE_MARKETPLACE in content:
+            raise ValidationError(
+                f"{relative_path} contains the stale {STALE_MARKETPLACE!r} marketplace name"
             )
     print("OK no stale local paths")
 

@@ -237,6 +237,7 @@ def write_atomic(path: Path, content: str) -> None:
     with tempfile.NamedTemporaryFile(
         "w",
         encoding="utf-8",
+        newline="\n",
         dir=path.parent,
         prefix=f".{path.name}.",
         delete=False,
