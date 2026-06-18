@@ -151,7 +151,16 @@ def parse_scenarios(text: str) -> list[dict]:
 def build_skill_context() -> str:
     parts = []
     for path in SKILL_FILES:
-        parts.append(f"----- {path.relative_to(ROOT)} -----\n{path.read_text(encoding='utf-8')}")
+        text = path.read_text(encoding="utf-8")
+        if path.name == "depth-and-pressure.md":
+            # Strip the numbered pressure-scenario answer-keys (their
+            # Trigger/Expected/Failure) so the planner under test never receives
+            # the answers it is being judged against -- otherwise the eval mostly
+            # measures whether the model can match a trigger to its documented
+            # scenario. Keep the guidance above them (domain lenses, dependency
+            # chains, self-optimization classification, number-only index).
+            text = re.split(r"\n### \d+\.\s", text, maxsplit=1)[0]
+        parts.append(f"----- {path.relative_to(ROOT)} -----\n{text}")
     return "\n\n".join(parts)
 
 
